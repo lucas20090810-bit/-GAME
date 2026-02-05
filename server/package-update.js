@@ -28,8 +28,8 @@ function packageUpdate() {
             const fileBuffer = fs.readFileSync(outputPath);
             const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
 
-            // Read package.json for version
-            const packageJson = require('../package.json');
+            // Read package.json for version (no cache)
+            const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
 
             // Create manifest
             const manifest = {
