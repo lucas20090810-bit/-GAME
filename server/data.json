@@ -1,0 +1,27 @@
+{
+  "users": {
+    "123": {
+      "id": "123",
+      "name": "丞丞",
+      "avatar": "https://via.placeholder.com/150",
+      "coins": 1000,
+      "inventory": [],
+      "mails": [
+        {
+          "id": "m1",
+          "title": "歡迎來到丞丞GAME",
+          "content": "祝您玩得開心！",
+          "date": "2026-02-05",
+          "read": false
+        }
+      ]
+    }
+  },
+  "shop": [
+    { "id": "s1", "name": "金牌玩家", "price": 500, "description": "獲得專屬頭像框" },
+    { "id": "s2", "name": "2048 復活幣", "price": 100, "description": "死亡時可繼續遊戲" }
+  ],
+  "news": [
+    { "id": "n1", "title": "1.0.0 版本更新", "content": "首款小遊戲 2048 正式登陸！", "date": "2026-02-05" }
+  ]
+}
