@@ -126,6 +126,20 @@ const App: React.FC = () => {
     } catch (e) { alert("網路連線錯誤"); }
   };
 
+  const handlePerformUpdate = async () => {
+    if (Capacitor.isNativePlatform() && LiveUpdate) {
+      try {
+        console.log('[OTA] Manual trigger sync & reload');
+        await LiveUpdate.sync();
+        await LiveUpdate.reload();
+      } catch (e) {
+        if (updateInfo?.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+      }
+    } else {
+      if (updateInfo?.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+    }
+  };
+
   // Simple conditional rendering - NO AnimatePresence at top level
   if (loading || !readyToStart) {
     return (
@@ -166,7 +180,7 @@ const App: React.FC = () => {
               <h3 className="text-2xl font-black mb-4 text-primary text-center">發現新更新</h3>
               <p className="text-lg text-center mb-6 font-bold text-white">{updateInfo.version}</p>
               <button
-                onClick={() => window.open(updateInfo.downloadUrl, '_blank')}
+                onClick={handlePerformUpdate}
                 className="w-full py-4 bg-primary text-black font-black rounded-xl hover:scale-105 transition-transform shadow-lg mb-3"
               >
                 立即更新
