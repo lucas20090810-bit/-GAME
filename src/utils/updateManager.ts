@@ -9,8 +9,8 @@ export interface VersionInfo {
     changelog: string[];
 }
 
-const CURRENT_APP_VERSION = "測試1.0.5";
-const CURRENT_OTA_VERSION = "2251.0205.A";
+const CURRENT_APP_VERSION = "1.1.0";
+const CURRENT_OTA_VERSION = "2026.0206.A";
 
 export const checkAndUpdate = async (): Promise<VersionInfo | null> => {
     try {
