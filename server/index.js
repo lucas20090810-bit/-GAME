@@ -181,33 +181,18 @@ app.post('/api/admin/trigger-update', async (req, res) => {
         const { version, message } = req.body;
         console.log(`📦 Received trigger: v${version} - ${message}`);
 
-        // 1. Run build first to ensure dist is up to date
-        const { exec } = require('child_process');
-        console.log('🏗️ Starting build on server...');
+        // Direct package existing dist folder
+        console.log('📦 Packaging build...');
+        const manifest = await packageUpdate();
 
-        exec('npm run build', async (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Build Error: ${error.message}`);
-                return res.status(500).json({ error: 'Build failed: ' + error.message });
-            }
-
-            try {
-                // 2. Package the newly built dist
-                console.log('📦 Packaging build...');
-                const manifest = await packageUpdate();
-
-                res.json({
-                    success: true,
-                    message: `更新包已建立成功！版本: ${manifest.version}`,
-                    manifest: manifest
-                });
-            } catch (pkgError) {
-                res.status(500).json({ error: 'Packaging failed: ' + pkgError.message });
-            }
+        res.json({
+            success: true,
+            message: `更新包已建立成功！版本: ${manifest.version}`,
+            manifest: manifest
         });
     } catch (error) {
         console.error('OTA Error:', error);
-        res.status(500).json({ error: 'Failed to trigger update' });
+        res.status(500).json({ error: 'Failed to trigger update: ' + error.message });
     }
 });
 

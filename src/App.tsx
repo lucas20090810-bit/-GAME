@@ -15,11 +15,16 @@ import { Capacitor } from '@capacitor/core';
 
 // OTA Live Update (only works on native platforms)
 let LiveUpdate: any = null;
-if (Capacitor.isNativePlatform()) {
-  import('@capawesome/capacitor-live-update').then(module => {
-    LiveUpdate = module.LiveUpdate;
-  }).catch(() => console.log('LiveUpdate not available'));
-}
+const loadLiveUpdate = async () => {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const module = await import('@capawesome/capacitor-live-update');
+      LiveUpdate = module.LiveUpdate;
+      console.log('[OTA] LiveUpdate initialized');
+    } catch (e) { console.log('[OTA] LiveUpdate not available'); }
+  }
+};
+loadLiveUpdate();
 
 type Screen = 'menu' | '2048' | 'pingpong' | 'profile' | 'shop' | 'mail' | 'admin';
 
