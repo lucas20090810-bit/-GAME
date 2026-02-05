@@ -33,10 +33,10 @@ function packageUpdate() {
         // Create manifest
         const manifest = {
             version: packageJson.version,
-            bundleId: Date.now().toString(),
+            ota_version: Date.now().toString(),
             url: 'https://game-xhnj.onrender.com/updates/latest.zip',
+            downloadUrl: 'https://game-xhnj.onrender.com/updates/latest.zip',
             checksum: hash,
-            timestamp: new Date().toISOString(),
         };
 
         fs.writeFileSync(

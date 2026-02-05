@@ -35,10 +35,12 @@ const getManifest = () => {
     } catch (e) { }
     return {
         version: "1.1.0",
-        bundleId: "initial",
+        ota_version: "2026.0206.A",
         url: "https://game-xhnj.onrender.com/updates/latest.zip",
-        message: "UI 介面全面進化！",
-        changelog: ["全新 2048 遊戲邏輯", "介面優化"]
+        downloadUrl: "https://game-xhnj.onrender.com/updates/latest.zip",
+        message: "修正 UI 與 2048 遊戲邏輯",
+        critical: true,
+        changelog: ["修正右上角 + 號位置", "糾正 2048 滑動方向"]
     };
 };
 
