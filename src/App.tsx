@@ -127,13 +127,26 @@ const App: React.FC = () => {
   };
 
   const handlePerformUpdate = async () => {
-    if (Capacitor.isNativePlatform() && LiveUpdate) {
+    if (Capacitor.isNativePlatform() && LiveUpdate && updateInfo) {
       try {
-        console.log('[OTA] Manual trigger sync & reload');
-        await LiveUpdate.sync();
+        console.log('[OTA] Manual download start:', updateInfo.downloadUrl);
+        const bid = updateInfo.ota_version || Date.now().toString();
+
+        // 1. Download the bundle directly from the URL
+        await LiveUpdate.downloadBundle({
+          url: updateInfo.downloadUrl,
+          bundleId: bid
+        });
+
+        // 2. Set the downloaded bundle as the active one
+        await LiveUpdate.setBundle({ bundleId: bid });
+
+        // 3. Reload to apply changes immediately
         await LiveUpdate.reload();
       } catch (e) {
-        if (updateInfo?.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+        console.error('[OTA] Manual update failed:', e);
+        // Ultra-fallback if plugin fails
+        if (updateInfo.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
       }
     } else {
       if (updateInfo?.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
