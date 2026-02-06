@@ -241,6 +241,7 @@ const App: React.FC = () => {
             if (id === '2048') setActiveScreen('2048');
             else if (id === 'pingpong') setActiveScreen('pingpong');
             else if (id === 'pingpong3d') setActiveScreen('pingpong3d');
+            else if (id === 'reaction') setActiveScreen('reaction');
             else if (id === 'shop') setActiveScreen('shop');
             else if (id === 'mail') setActiveScreen('mail');
             else if (id === 'profile') setActiveScreen('profile');

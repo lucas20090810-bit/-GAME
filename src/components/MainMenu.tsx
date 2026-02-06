@@ -58,10 +58,7 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
                     </div>
                 </button>
 
-                {/* Center: Title */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
-                    <h1 className="text-xl font-black text-white drop-shadow-lg">🏃 火柴人大逃亡</h1>
-                </div>
+                {/* Center: Title - Removed for hot update test */}
 
                 {/* Right: Coins + Settings */}
                 <div className="flex items-center gap-2">
