@@ -7,10 +7,11 @@ interface PingPongProps {
     onBack: () => void;
 }
 
-const CANVAS_WIDTH = 320;
-const CANVAS_HEIGHT = 480;
+// Changed to landscape ratio that fits horizontal screen
+const CANVAS_WIDTH = 480;
+const CANVAS_HEIGHT = 280;
 const PADDLE_WIDTH = 80;
-const PADDLE_HEIGHT = 12;
+const PADDLE_HEIGHT = 10;
 const BALL_SIZE = 10;
 
 const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
@@ -182,7 +183,7 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
             initial={{ x: 300, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
-            className="flex-1 flex flex-col overflow-hidden pb-4"
+            className="fixed inset-0 flex flex-col bg-slate-900 overflow-hidden"
         >
             {/* Header */}
             <header className="px-2 py-4 flex items-center justify-between mb-4">

@@ -66,80 +66,78 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ isLoading, showButton, onSt
     const isButtonShown = showButton || forceReveal;
 
     return (
-        <div className="fixed inset-0 z-[100] flex bg-black overflow-hidden">
-            {/* Chinese New Year Background */}
+        <div className="fixed inset-0 z-[100] flex flex-col bg-black overflow-hidden">
+            {/* Full Screen Background Image - COD Style */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-red-800 to-amber-900" />
-                {/* Lanterns */}
-                <div className="absolute top-0 left-[5%] w-20 h-28 bg-gradient-to-b from-red-500 to-red-700 rounded-full opacity-50 blur-md animate-pulse" />
-                <div className="absolute top-0 left-[25%] w-16 h-24 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full opacity-40 blur-md animate-pulse" style={{ animationDelay: '0.3s' }} />
-                <div className="absolute top-0 right-[25%] w-18 h-26 bg-gradient-to-b from-red-600 to-red-800 rounded-full opacity-45 blur-md animate-pulse" style={{ animationDelay: '0.6s' }} />
-                <div className="absolute top-0 right-[5%] w-14 h-20 bg-gradient-to-b from-amber-400 to-orange-500 rounded-full opacity-35 blur-md animate-pulse" style={{ animationDelay: '0.9s' }} />
-                {/* Gold particles */}
-                <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'radial-gradient(circle, #fcd34d 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
+                <img
+                    src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1920&q=80"
+                    className="w-full h-full object-cover"
+                    alt="bg"
+                    style={{ filter: 'brightness(0.7) saturate(1.2)' }}
+                />
+                {/* Red overlay for CNY theme */}
+                <div className="absolute inset-0 bg-gradient-to-r from-red-900/60 via-transparent to-red-900/40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
             </div>
 
-            {/* Left Side - Logo & Title */}
-            <div className="relative flex-1 flex items-center justify-center z-10 px-8">
-                <div className="flex flex-col items-center">
-                    {/* New Year Decoration */}
+            {/* Main Content - Flex to position elements */}
+            <div className="relative z-10 flex-1 flex">
+                {/* Left Side - Logo and Title */}
+                <div className="flex-1 flex flex-col justify-center items-start px-12">
+                    {/* CNY Icon */}
                     <div className="text-6xl mb-4">🧧</div>
 
-                    <div className="relative mb-6">
-                        <h2 className="text-5xl font-black italic tracking-tight leading-none text-amber-400 drop-shadow-[0_4px_20px_rgba(251,191,36,0.5)]">
-                            新年快樂
-                        </h2>
-                        <div className="absolute -bottom-2 right-0 px-3 py-1 bg-red-600 text-white font-black text-sm italic skew-x-[-10deg] border-2 border-amber-400 shadow-xl">
-                            2025
-                        </div>
+                    {/* Main Title */}
+                    <h1 className="text-5xl font-black italic text-amber-400 drop-shadow-[0_4px_20px_rgba(251,191,36,0.6)] mb-2">
+                        新年快樂
+                    </h1>
+
+                    {/* Year Badge */}
+                    <div className="px-4 py-1.5 bg-red-600 text-white font-black text-lg italic rounded border-2 border-amber-400 shadow-xl mb-6">
+                        2025
                     </div>
 
-                    <div className="flex flex-col items-center mt-4">
-                        <span className="text-3xl font-black text-white tracking-[0.3em] uppercase drop-shadow-lg">丞丞GAME</span>
-                        <div className="w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-3 rounded-full" />
+                    {/* Brand Name */}
+                    <div className="flex items-center gap-3">
+                        <span className="text-3xl font-black text-white tracking-[0.4em] uppercase drop-shadow-lg">丞丞GAME</span>
                     </div>
                 </div>
-            </div>
 
-            {/* Right Side - Progress & Start Button */}
-            <div className="relative flex-1 flex items-center justify-center z-10 px-8">
-                <div className="w-full max-w-md space-y-6">
-                    {isButtonShown ? (
+                {/* Right Side - Start Button (when ready) */}
+                <div className="flex-1 flex flex-col justify-center items-center px-12">
+                    {isButtonShown && (
                         <button
                             onClick={onStart}
-                            className="w-full py-5 bg-gradient-to-r from-red-600 to-amber-500 text-white font-black text-2xl italic tracking-wider rounded-2xl shadow-[0_0_40px_rgba(239,68,68,0.5)] border-2 border-amber-400/50 select-none active:scale-95 transition-transform hover:shadow-[0_0_60px_rgba(239,68,68,0.7)]"
+                            className="w-80 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-2xl italic tracking-wider rounded-xl shadow-[0_0_40px_rgba(249,115,22,0.6)] border-2 border-white/30 select-none active:scale-95 transition-transform hover:shadow-[0_0_60px_rgba(249,115,22,0.8)] flex items-center justify-center gap-3"
                         >
                             🎮 點擊開始 🎮
                         </button>
-                    ) : (
-                        <div className="w-full">
-                            <div className="w-full flex justify-between items-end mb-3 px-1">
-                                <div className="flex flex-col items-start">
-                                    <span className="text-[10px] font-black text-amber-400 tracking-widest uppercase mb-1">系統: 初始化中</span>
-                                    <span className="text-sm font-black italic text-white/90 drop-shadow-md tracking-tight">{statusText}</span>
-                                </div>
-                                <span className="text-xl font-black text-amber-400 italic drop-shadow-lg">{Math.floor(progress)}%</span>
-                            </div>
-
-                            <div className="w-full h-4 bg-black/60 rounded-full border border-amber-500/30 overflow-hidden relative p-[2px] shadow-2xl">
-                                <div
-                                    className="h-full bg-gradient-to-r from-red-600 via-amber-500 to-red-600 relative rounded-full transition-all duration-300"
-                                    style={{ width: `${progress}%` }}
-                                >
-                                    <div className="absolute top-0 right-0 w-6 h-full bg-white blur-lg opacity-50 animate-pulse" />
-                                </div>
-                            </div>
-                        </div>
                     )}
+                </div>
+            </div>
 
-                    {/* Version Info */}
-                    <div className="flex justify-center gap-4 opacity-50 uppercase font-bold text-[9px] tracking-widest text-amber-200/80">
-                        <p>版本 {CONFIG.APP_VERSION}</p>
-                        <div className="w-[1px] h-3 bg-amber-500/30" />
-                        <p>資源 {CONFIG.RESOURCE_VERSION}</p>
-                    </div>
+            {/* Bottom Bar - Progress (Left) & Version Info (Right) - COD Style */}
+            <div className="relative z-10 px-8 pb-6 flex items-end justify-between">
+                {/* Left: Progress Bar */}
+                <div className="flex flex-col items-start w-64">
+                    {!isButtonShown && (
+                        <>
+                            <span className="text-xs font-bold text-white/80 mb-2 tracking-wide">{statusText}</span>
+                            <div className="w-full h-3 bg-black/60 rounded-sm overflow-hidden border border-white/20">
+                                <div
+                                    className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-300"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                            <span className="text-lg font-black text-amber-400 mt-1">{Math.floor(progress)}%</span>
+                        </>
+                    )}
+                </div>
+
+                {/* Right: Version Info */}
+                <div className="flex flex-col items-end text-right">
+                    <span className="text-xs font-bold text-white/60 tracking-wider">版本 {CONFIG.APP_VERSION}</span>
+                    <span className="text-xs font-bold text-white/40 tracking-wider">資源 {CONFIG.RESOURCE_VERSION}</span>
                 </div>
             </div>
         </div>
