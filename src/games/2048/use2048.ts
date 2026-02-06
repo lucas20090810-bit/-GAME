@@ -8,15 +8,43 @@ type Tile = {
 
 const GRID_SIZE = 4;
 
+// Load saved game state from localStorage
+const loadGameState = () => {
+    const saved = localStorage.getItem('2048-game-state');
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+};
+
+// Save game state to localStorage
+const saveGameState = (grid: (Tile | null)[][], score: number, gameOver: boolean) => {
+    const state = { grid, score, gameOver };
+    localStorage.setItem('2048-game-state', JSON.stringify(state));
+};
+
 export const use2048 = () => {
+    const savedState = loadGameState();
+
     const [grid, setGrid] = useState<(Tile | null)[][]>(
-        Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null))
+        savedState?.grid || Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null))
     );
-    const [score, setScore] = useState(0);
+    const [score, setScore] = useState(savedState?.score || 0);
     const [bestScore, setBestScore] = useState(() => {
         return Number(localStorage.getItem('2048-best-score')) || 0;
     });
-    const [gameOver, setGameOver] = useState(false);
+    const [gameOver, setGameOver] = useState(savedState?.gameOver || false);
+
+    // Save state whenever grid, score, or gameOver changes
+    useEffect(() => {
+        if (grid.some(row => row.some(cell => cell !== null))) {
+            saveGameState(grid, score, gameOver);
+        }
+    }, [grid, score, gameOver]);
 
     // Get all empty cells
     const getEmptyCells = (currentGrid: (Tile | null)[][]) => {
@@ -48,7 +76,7 @@ export const use2048 = () => {
         return newGrid;
     }, []);
 
-    // Initialize game with two random tiles
+    // Initialize game with two random tiles (new game)
     const initGame = useCallback(() => {
         let newGrid: (Tile | null)[][] = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
         newGrid = addRandomTile(newGrid);
@@ -56,6 +84,7 @@ export const use2048 = () => {
         setGrid(newGrid);
         setScore(0);
         setGameOver(false);
+        localStorage.removeItem('2048-game-state'); // Clear saved state when starting new game
     }, [addRandomTile]);
 
     // Check if any moves are possible
@@ -213,7 +242,7 @@ export const use2048 = () => {
             // If grid changed, add a new tile and update score
             if (moved) {
                 if (totalScoreGained > 0) {
-                    setScore(s => {
+                    setScore((s: number) => {
                         const newTotal = s + totalScoreGained;
                         if (newTotal > bestScore) {
                             setBestScore(newTotal);
@@ -237,9 +266,12 @@ export const use2048 = () => {
         });
     }, [gameOver, addRandomTile, bestScore]);
 
+    // Only init game if no saved state exists
     useEffect(() => {
-        initGame();
-    }, [initGame]);
+        if (!savedState) {
+            initGame();
+        }
+    }, []); // Empty deps - only run once on mount
 
     return { grid, score, bestScore, move, initGame, gameOver };
 };

@@ -6,6 +6,12 @@ import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        hideSystemUI(); // Hide immediately on launch
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         hideSystemUI();
