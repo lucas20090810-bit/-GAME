@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Gamepad2, User, Trophy, ShoppingCart, Mail, Plus, Settings } from 'lucide-react';
+import { Gamepad2, User, Trophy, ShoppingCart, Mail, Settings, Coins } from 'lucide-react';
 import { playSound } from '../utils/sound';
-import { CONFIG } from '../config';
 
 interface GameCard {
     id: string;
@@ -15,108 +14,162 @@ interface GameCard {
 const games: GameCard[] = [
     {
         id: '2048',
-        title: '2048 經典版',
-        subtitle: '益智合體 ‧ 挑戰巔峰',
-        icon: <Gamepad2 className="w-12 h-12" />,
+        title: '2048',
+        subtitle: '益智合體',
+        icon: <Gamepad2 className="w-8 h-8" />,
         color: 'from-sky-500 to-blue-700'
-    },
-    {
-        id: 'shop',
-        title: '補給商城',
-        subtitle: '裝備強化 ‧ 限時優惠',
-        icon: <ShoppingCart className="w-12 h-12" />,
-        color: 'from-amber-500 to-orange-700'
-    },
-    {
-        id: 'mail',
-        title: '情報中心',
-        subtitle: '戰報讀取 ‧ 系統通知',
-        icon: <Mail className="w-12 h-12" />,
-        color: 'from-indigo-500 to-purple-700'
     },
     {
         id: 'pingpong',
         title: '打桌球',
-        subtitle: '反應挑戰 ‧ 極限操作',
-        icon: <Trophy className="w-12 h-12" />,
+        subtitle: '反應挑戰',
+        icon: <Trophy className="w-8 h-8" />,
         color: 'from-emerald-500 to-green-700'
     },
 ];
 
 const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string) => void }> = ({ userData, news, onSelectGame }) => {
-    React.useEffect(() => {
-        console.log(">>> [MENU] MOUNTED. User:", userData?.name);
-    }, [userData]);
-
     const handleAction = (id: string) => {
         playSound('click');
         onSelectGame(id);
     };
 
+    // Get avatar from userData (could be base64 or URL)
+    const avatarSrc = userData?.avatar || '';
+    const hasAvatar = avatarSrc && avatarSrc.length > 10;
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex-1 flex flex-col overflow-hidden pb-safe-bottom"
+            className="h-screen w-screen flex flex-col overflow-hidden"
         >
-            {/* Background Art Overlay */}
-            <div className="fixed inset-0 z-0 opacity-40 pointer-events-none">
-                <img
-                    src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000"
-                    className="w-full h-full object-cover"
-                    alt="bg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+            {/* Chinese New Year Background */}
+            <div className="fixed inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-red-800 to-amber-900" />
+                {/* Lantern decorations */}
+                <div className="absolute top-0 left-[10%] w-16 h-24 bg-gradient-to-b from-red-500 to-red-700 rounded-full opacity-60 blur-sm animate-pulse" />
+                <div className="absolute top-0 left-[30%] w-12 h-20 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full opacity-50 blur-sm animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute top-0 right-[20%] w-14 h-22 bg-gradient-to-b from-red-600 to-red-800 rounded-full opacity-55 blur-sm animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-0 right-[5%] w-10 h-18 bg-gradient-to-b from-amber-400 to-orange-500 rounded-full opacity-45 blur-sm animate-pulse" style={{ animationDelay: '1.5s' }} />
+                {/* Gold particles */}
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #fcd34d 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
             </div>
 
-            {/* Top Info Bar */}
-            <header className="relative z-10 p-0 py-4 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                    <button onClick={() => handleAction('profile')} className="flex items-center gap-4 group cursor-pointer">
-                        <div className="relative">
-                            <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-primary via-secondary to-primary p-[3px] shadow-2xl shadow-primary/30 group-hover:shadow-primary/50 transition-shadow">
-                                <div className="w-full h-full bg-slate-900 rounded-[17px] flex items-center justify-center overflow-hidden">
-                                    <User size={36} className="text-primary opacity-40" />
-                                </div>
-                            </div>
-                            <div className="absolute -bottom-1 -right-1 bg-amber-500 text-black text-[12px] font-black px-2 py-0.5 rounded-lg border-2 border-black shadow-lg">
-                                Lv.42
-                            </div>
-                        </div>
-                        <div className="text-left">
-                            <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none text-white drop-shadow-md group-hover:text-primary transition-colors">{userData.name}</h2>
-                            <div className="flex items-center gap-1.5 mt-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-500/80">Operational</span>
+            {/* Top Bar - Avatar (Left) | Title (Center) | Coins & Settings (Right) */}
+            <header className="relative z-10 px-6 py-3 flex items-center justify-between">
+                {/* Left: Avatar + Name */}
+                <button onClick={() => handleAction('profile')} className="flex items-center gap-3 group cursor-pointer">
+                    <div className="relative">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 via-red-500 to-amber-400 p-[3px] shadow-2xl shadow-amber-500/30 group-hover:shadow-amber-500/50 transition-shadow">
+                            <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center overflow-hidden">
+                                {hasAvatar ? (
+                                    <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={28} className="text-amber-400 opacity-60" />
+                                )}
                             </div>
                         </div>
-                    </button>
-
-                    <div className="flex flex-col gap-2 scale-110">
-                        {/* Coins */}
-                        <div className="glass-panel-heavy px-4 py-2.5 rounded-2xl flex items-center gap-2 border-white/10 shadow-2xl whitespace-nowrap">
-                            <div className="w-6 h-6 bg-gradient-to-t from-amber-600 to-amber-400 rounded-full flex items-center justify-center text-[11px] font-black text-black border border-white/20">₵</div>
-                            <span className="text-base font-black italic text-amber-400">{userData.coins || 0}</span>
-                            <div className="ml-1 p-0.5 bg-primary/20 rounded-md">
-                                <Plus size={14} className="text-primary hover:scale-125 transition-transform" />
-                            </div>
+                        <div className="absolute -bottom-1 -right-1 bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded-md border-2 border-black shadow-lg">
+                            Lv.42
                         </div>
                     </div>
+                    <div className="text-left">
+                        <h2 className="text-xl font-black italic tracking-tight uppercase leading-none text-amber-100 drop-shadow-md group-hover:text-amber-300 transition-colors">{userData.name}</h2>
+                        <div className="flex items-center gap-1 mt-1">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-green-400/80">在線</span>
+                        </div>
+                    </div>
+                </button>
+
+                {/* Center: Title */}
+                <div className="absolute left-1/2 transform -translate-x-1/2 flex flex-col items-center">
+                    <h1 className="text-2xl font-black italic text-amber-400 drop-shadow-[0_2px_10px_rgba(251,191,36,0.5)]">🧧 新年快樂 🧧</h1>
+                    <p className="text-[10px] font-bold text-amber-200/60 uppercase tracking-widest">HAPPY NEW YEAR</p>
                 </div>
 
-                {/* News Ticker (Classic Game Style) */}
-                <div className="glass-panel-heavy h-12 rounded-xl border-white/10 flex items-center px-5 overflow-hidden relative shadow-inner">
-                    <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#0f172a] to-transparent z-10" />
-                    <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0f172a] to-transparent z-10" />
+                {/* Right: Coins + Settings */}
+                <div className="flex items-center gap-3">
+                    {/* Coins */}
+                    <div className="glass-panel-heavy px-4 py-2 rounded-xl flex items-center gap-2 border border-amber-500/30 shadow-xl bg-black/30">
+                        <Coins size={20} className="text-amber-400" />
+                        <span className="text-lg font-black italic text-amber-400">{userData.coins || 0}</span>
+                    </div>
+                    {/* Settings */}
+                    <button onClick={() => handleAction('admin')} className="p-3 rounded-xl bg-black/30 border border-white/10 hover:bg-white/10 transition-colors">
+                        <Settings size={22} className="text-white/70" />
+                    </button>
+                </div>
+            </header>
 
-                    <div className="flex items-center gap-10 animate-[ticker_25s_linear_infinite] whitespace-nowrap">
+            {/* Main Content - Horizontal Layout */}
+            <main className="relative z-10 flex-1 px-6 py-4 flex items-center gap-6">
+                {/* Left Column: Shop & Mail (Vertical) */}
+                <div className="flex flex-col gap-3 w-32 shrink-0">
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleAction('shop')}
+                        className="relative h-28 rounded-2xl overflow-hidden border-2 border-amber-500/30 shadow-xl"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-700" />
+                        <div className="relative h-full flex flex-col items-center justify-center gap-2">
+                            <ShoppingCart size={28} className="text-white drop-shadow-md" />
+                            <span className="text-xs font-black text-white uppercase">商店</span>
+                        </div>
+                    </motion.button>
+
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleAction('mail')}
+                        className="relative h-28 rounded-2xl overflow-hidden border-2 border-purple-500/30 shadow-xl"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-700" />
+                        <div className="relative h-full flex flex-col items-center justify-center gap-2">
+                            <Mail size={28} className="text-white drop-shadow-md" />
+                            <span className="text-xs font-black text-white uppercase">情報</span>
+                        </div>
+                    </motion.button>
+                </div>
+
+                {/* Right Area: Game Mode Buttons (Horizontal) */}
+                <div className="flex-1 flex items-center justify-center gap-6">
+                    {games.map((game, index) => (
+                        <motion.button
+                            key={game.id}
+                            initial={{ x: 50, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 + index * 0.1 }}
+                            whileTap={{ scale: 0.97 }}
+                            whileHover={{ scale: 1.02 }}
+                            onClick={() => handleAction(game.id)}
+                            className="relative w-56 h-40 rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 flex flex-col items-center justify-center"
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-95`} />
+                            <div className="relative z-10 flex flex-col items-center gap-2">
+                                <div className="p-4 bg-black/20 rounded-2xl border border-white/20">
+                                    {game.icon}
+                                </div>
+                                <h3 className="text-2xl font-black italic text-white leading-none uppercase tracking-tight">{game.title}</h3>
+                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">{game.subtitle}</p>
+                            </div>
+                        </motion.button>
+                    ))}
+                </div>
+            </main>
+
+            {/* News Ticker at Bottom */}
+            <footer className="relative z-10 px-6 py-2">
+                <div className="glass-panel-heavy h-10 rounded-xl border-amber-500/20 flex items-center px-4 overflow-hidden relative bg-black/30">
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/80 to-transparent z-10" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/80 to-transparent z-10" />
+                    <div className="flex items-center gap-8 animate-[ticker_20s_linear_infinite] whitespace-nowrap">
                         {[...news, ...news].map((n: any, i: number) => (
-                            <div key={i} className="flex items-center gap-3">
-                                <span className={`px-2.5 py-1 bg-${n.color || 'sky'}-600/20 text-${n.color || 'sky'}-400 border border-${n.color || 'sky'}-400/30 text-[10px] font-black rounded italic uppercase tracking-widest`}>
-                                    {n.title}
-                                </span>
-                                <span className="text-xs font-black text-white/70 italic tracking-wide">{n.title}: {n.content}</span>
-                                <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                            <div key={i} className="flex items-center gap-2">
+                                <span className="text-amber-400 text-xs font-bold">🎊</span>
+                                <span className="text-xs font-bold text-amber-200/80">{n.title}: {n.content}</span>
                             </div>
                         ))}
                     </div>
@@ -127,93 +180,7 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
                         }
                     `}</style>
                 </div>
-            </header>
-
-            {/* Main Content Area */}
-            <section className="relative z-10 flex-1 px-5 pt-2 flex flex-col items-center justify-center gap-4 overflow-y-auto noscrollbar">
-
-                {/* Row 1: Small Buttons (Shop & Mail) */}
-                <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleAction('shop')}
-                        className="relative h-24 rounded-[1.5rem] overflow-hidden group border border-white/10 shadow-lg"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-700 opacity-90" />
-                        <div className="relative h-full flex flex-col items-center justify-center gap-1">
-                            <ShoppingCart size={24} className="text-white drop-shadow-md" />
-                            <span className="text-sm font-black text-white uppercase tracking-wider">補給商店</span>
-                        </div>
-                    </motion.button>
-
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleAction('mail')}
-                        className="relative h-24 rounded-[1.5rem] overflow-hidden group border border-white/10 shadow-lg"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-700 opacity-90" />
-                        <div className="relative h-full flex flex-col items-center justify-center gap-1">
-                            <Mail size={24} className="text-white drop-shadow-md" />
-                            <span className="text-sm font-black text-white uppercase tracking-wider">情報中心</span>
-                        </div>
-                    </motion.button>
-                </div>
-
-                {/* Row 2+: Large Game Mode Buttons */}
-                <div className="flex flex-col gap-4 items-center w-full">
-                    {games.filter(g => g.id === '2048' || g.id === 'pingpong').map((game, index) => (
-                        <motion.button
-                            key={game.id}
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.3 + index * 0.1 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => handleAction(game.id)}
-                            className={`relative w-full max-w-sm p-6 h-32 rounded-[2rem] overflow-hidden group shadow-2xl border border-white/10 flex items-center justify-between`}
-                        >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-95`} />
-                            <div className="relative z-10 text-left">
-                                <h3 className="text-3xl font-black italic text-white leading-none uppercase tracking-tighter">{game.title}</h3>
-                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] mt-1">{game.subtitle}</p>
-                            </div>
-                            <div className="relative z-10 p-3 bg-black/20 rounded-2xl border border-white/20 rotate-[-5deg]">
-                                {game.icon}
-                            </div>
-                        </motion.button>
-                    ))}
-                </div>
-
-                {/* Extra spacing to prevent bottom clipping */}
-                <div className="h-6" />
-            </section>
-
-            {/* Version Numbers in Corners */}
-            <div className="relative z-10 px-8 py-2 flex justify-between items-center opacity-40 pointer-events-none">
-                <p className="text-[9px] font-black italic tracking-tighter uppercase">Client: {CONFIG.APP_VERSION}</p>
-                <p className="text-[9px] font-black italic tracking-tighter uppercase text-primary">System Online</p>
-                <p className="text-[9px] font-black italic tracking-tighter uppercase">OTA: {CONFIG.RESOURCE_VERSION}</p>
-            </div>
-
-            {/* Bottom Tab Bar (Custom High-End Mobile Menu) */}
-            <nav className="relative z-20 mx-6 mt-2 mb-4 h-20 glass-panel-heavy rounded-[2rem] border-white/15 flex items-center justify-around shadow-[0_30px_60px_rgba(0,0,0,0.8)] overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent pointer-events-none" />
-                {[
-                    { icon: <User size={28} />, label: '基地', id: 'profile' },
-                    { icon: <Mail size={28} />, label: '報告', id: 'mail' },
-                    { icon: <Trophy size={28} />, label: '排行榜', id: 'more' },
-                    { icon: <Settings size={28} />, label: '設置', id: 'admin' },
-                ].map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => handleAction(item.id)}
-                        className="flex flex-col items-center gap-1 active:scale-95 transition-all text-white/30 hover:text-sky-400 group relative py-2 px-4"
-                    >
-                        <motion.div whileHover={{ y: -4 }}>{item.icon}</motion.div>
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] group-hover:text-sky-400 transition-colors">{item.label}</span>
-                        <div className="absolute -bottom-1 w-1 h-1 bg-sky-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                ))}
-            </nav>
+            </footer>
         </motion.div>
     );
 };
