@@ -59,6 +59,10 @@ const App: React.FC = () => {
     try {
       checkAndUpdate().then(up => { if (up) setUpdateInfo(up); }).catch(() => { });
 
+      // Load saved profile from localStorage first
+      const savedProfile = localStorage.getItem('user_profile');
+      const localUser = savedProfile ? JSON.parse(savedProfile) : null;
+
       const [userData, shop, newsData, popups] = await Promise.all([
         api.getUser("123").catch(() => CONFIG.DEFAULT_USER),
         api.getShop().catch(() => []),
@@ -66,7 +70,11 @@ const App: React.FC = () => {
         api.getPopups().catch(() => [])
       ]);
 
-      setUser(userData || CONFIG.DEFAULT_USER);
+      // Merge local profile with server data (local takes priority for name/avatar)
+      const mergedUser = localUser
+        ? { ...userData, name: localUser.name, avatar: localUser.avatar }
+        : (userData || CONFIG.DEFAULT_USER);
+      setUser(mergedUser);
       setShopItems(shop || []);
       setNews(newsData || []);
       if (popups) setAllPopups(popups);
@@ -108,10 +116,16 @@ const App: React.FC = () => {
 
   const handleUpdateProfile = async (newData: any) => {
     try {
-      const updated = await api.updateUser(user.id, newData.name, newData.avatar);
-      setUser(updated);
+      // Save to localStorage for persistence
+      const updatedUser = { ...user, name: newData.name, avatar: newData.avatar };
+      localStorage.setItem('user_profile', JSON.stringify(updatedUser));
+      setUser(updatedUser);
       setActiveScreen('menu');
-    } catch (e) { alert("更新失敗"); }
+      alert("✅ 個人檔案已更新！");
+    } catch (e) {
+      console.error("Profile update error:", e);
+      alert("更新失敗");
+    }
   };
 
   const handleBuy = async (userId: string, itemId: string) => {
