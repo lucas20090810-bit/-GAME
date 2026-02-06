@@ -96,7 +96,22 @@ const App: React.FC = () => {
     }, 4000);
 
     try {
-      checkAndUpdate().catch(() => { });
+      // Check for OTA updates
+      const updateInfo = await checkAndUpdate();
+      if (updateInfo && LiveUpdate) {
+        const message = `發現新版本 ${updateInfo.version}\n${updateInfo.message || ''}\n\n立即更新？`;
+        if (confirm(message)) {
+          try {
+            console.log('[OTA] Starting sync with URL:', updateInfo.downloadUrl);
+            await LiveUpdate.sync({ url: updateInfo.downloadUrl });
+            console.log('[OTA] Sync completed, reloading app...');
+            await LiveUpdate.reload();
+          } catch (syncErr) {
+            console.error('[OTA] Sync failed:', syncErr);
+            alert('更新失敗，請稍後再試');
+          }
+        }
+      }
 
       const [shop, newsData, popups] = await Promise.all([
         api.getShop().catch(() => []),
