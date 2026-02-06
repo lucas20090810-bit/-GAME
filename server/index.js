@@ -396,4 +396,17 @@ app.post('/api/admin/trigger-update', async (req, res) => {
 // Serve update bundles
 app.use('/updates', express.static(path.join(__dirname, 'public/updates')));
 
+// Auto-package update on server startup (if dist exists)
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
+    console.log('📦 Dist folder found, auto-packaging update...');
+    packageUpdate().then(manifest => {
+        console.log('✅ Auto-packaged on startup:', manifest);
+    }).catch(err => {
+        console.warn('⚠️  Auto-packaging failed:', err.message);
+    });
+} else {
+    console.warn('⚠️  No dist folder found, skipping auto-packaging');
+}
+
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
