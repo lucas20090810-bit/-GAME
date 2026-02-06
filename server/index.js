@@ -161,13 +161,13 @@ app.post('/api/auth/facebook', async (req, res) => {
         }
 
         // Generate JWT tokens
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
+        const jwtAccessToken = generateAccessToken(user);
+        const jwtRefreshToken = generateRefreshToken(user);
 
         res.json({
             success: true,
-            accessToken,
-            refreshToken,
+            accessToken: jwtAccessToken,
+            refreshToken: jwtRefreshToken,
             user: {
                 id: user.id,
                 email: user.email,

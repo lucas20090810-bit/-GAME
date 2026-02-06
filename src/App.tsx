@@ -4,6 +4,7 @@ import LoginScreen from './components/LoginScreen';
 import MainMenu from './components/MainMenu';
 import Game2048 from './games/2048/Game2048';
 import PingPong from './games/PingPong/PingPong';
+import PingPong3D from './games/PingPong3D/PingPong3D';
 import ProfileScreen from './components/ProfileScreen';
 import ShopScreen from './components/ShopScreen';
 import Mailbox from './components/Mailbox';
@@ -54,12 +55,20 @@ const initLiveUpdate = async () => {
 // Start loading immediately
 initLiveUpdate();
 
-type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'profile' | 'shop' | 'mail' | 'admin';
+type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'pingpong3d' | 'profile' | 'shop' | 'mail' | 'admin';
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [activeScreen, setActiveScreen] = useState<Screen>('login');
-  const [user, setUser] = useState<any>(null);
+  const [activeScreen, setActiveScreen] = useState<Screen>('menu'); // 直接進主選單
+  const [user, setUser] = useState<any>({
+    id: 'test_user_123',
+    name: '測試玩家',
+    email: 'test@example.com',
+    avatar: '',
+    coins: 9999,
+    inventory: [],
+    mails: []
+  }); // 預設測試用戶
   const [shopItems, setShopItems] = useState([]);
   const [news, setNews] = useState([]);
   const [allPopups, setAllPopups] = useState<any[]>([]);
@@ -159,6 +168,9 @@ const App: React.FC = () => {
     case 'pingpong':
       content = <PingPong onBack={() => setActiveScreen('menu')} />;
       break;
+    case 'pingpong3d':
+      content = <PingPong3D onBack={() => setActiveScreen('menu')} />;
+      break;
     case 'profile':
       content = <ProfileScreen
         userData={user}
@@ -192,6 +204,7 @@ const App: React.FC = () => {
           onSelectGame={(id) => {
             if (id === '2048') setActiveScreen('2048');
             else if (id === 'pingpong') setActiveScreen('pingpong');
+            else if (id === 'pingpong3d') setActiveScreen('pingpong3d');
             else if (id === 'shop') setActiveScreen('shop');
             else if (id === 'mail') setActiveScreen('mail');
             else if (id === 'profile') setActiveScreen('profile');

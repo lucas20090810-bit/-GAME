@@ -13,6 +13,7 @@ interface GameCard {
 const games: GameCard[] = [
     { id: '2048', title: '2048', icon: <Gamepad2 className="w-8 h-8" />, color: 'from-sky-500 to-blue-700' },
     { id: 'pingpong', title: '桌球', icon: <Trophy className="w-8 h-8" />, color: 'from-emerald-500 to-green-700' },
+    { id: 'pingpong3d', title: '1v1 桌球', icon: <Trophy className="w-8 h-8" />, color: 'from-purple-500 to-violet-700' },
 ];
 
 const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string) => void }> = ({ userData, news, onSelectGame }) => {
