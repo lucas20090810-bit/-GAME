@@ -18,17 +18,19 @@ import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
 import { NavigationBar } from '@capgo/capacitor-navigation-bar';
 
-// OTA Live Update (only works on native platforms)
-let LiveUpdate: any = null;
+// OTA Update (only works on native platforms)
+let CapacitorUpdater: any = null;
 
-const initLiveUpdate = async () => {
+const initUpdater = async () => {
   if (!Capacitor.isNativePlatform()) return;
 
   try {
-    const module = await import('@capawesome/capacitor-live-update');
-    LiveUpdate = module.LiveUpdate;
-    console.log('[OTA] LiveUpdate plugin loaded');
-    const result = await LiveUpdate.ready();
+    const module = await import('@capgo/capacitor-updater');
+    CapacitorUpdater = module.CapacitorUpdater;
+    console.log('[OTA] CapacitorUpdater plugin loaded');
+
+    // Notify app is ready
+    await CapacitorUpdater.notifyAppReady();
 
     // Force Immersive Mode
     try {
@@ -47,14 +49,14 @@ const initLiveUpdate = async () => {
       console.error("Immersive mode error:", err);
     }
 
-    console.log('[OTA] ready() called successfully:', result);
+    console.log('[OTA] CapacitorUpdater initialized');
   } catch (e) {
-    console.error('[OTA] LiveUpdate init failed:', e);
+    console.error('[OTA] CapacitorUpdater init failed:', e);
   }
 };
 
 // Start loading immediately
-initLiveUpdate();
+initUpdater();
 
 type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'pingpong3d' | 'reaction' | 'profile' | 'shop' | 'mail' | 'admin';
 
@@ -99,21 +101,21 @@ const App: React.FC = () => {
     try {
       // Check for OTA updates
       const updateInfo = await checkAndUpdate();
-      if (updateInfo && LiveUpdate) {
+      if (updateInfo && CapacitorUpdater) {
         const message = `發現新版本 ${updateInfo.version}\n${updateInfo.message || ''}\n\n立即更新？`;
         if (confirm(message)) {
           try {
             console.log('[OTA] Downloading bundle...', updateInfo.downloadUrl);
 
-            // Download bundle with bundleId
-            const downloadResult = await LiveUpdate.downloadBundle({
+            // Download bundle
+            const bundle = await CapacitorUpdater.download({
               url: updateInfo.downloadUrl,
-              bundleId: updateInfo.ota_version,
+              version: updateInfo.version,
             });
-            console.log('[OTA] Downloaded:', downloadResult);
+            console.log('[OTA] Downloaded:', bundle);
 
             // Set bundle to be used
-            await LiveUpdate.setBundle({ bundleId: updateInfo.ota_version });
+            await CapacitorUpdater.set({ id: bundle.id });
             console.log('[OTA] Bundle activated');
 
             // Save version
@@ -121,7 +123,7 @@ const App: React.FC = () => {
             setAppliedOtaVersion(updateInfo.ota_version);
 
             // Reload
-            await LiveUpdate.reload();
+            await CapacitorUpdater.reload();
           } catch (syncErr: any) {
             console.error('[OTA] Failed:', syncErr);
             alert(`更新失敗: ${syncErr?.message || '請檢查網路'}`);
