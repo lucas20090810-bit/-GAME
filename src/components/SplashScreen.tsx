@@ -92,11 +92,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ isLoading, showButton, onSt
             <div className="relative flex-1 flex flex-col items-center justify-center z-10 px-8 text-center mt-[-5vh]">
                 <div className="flex flex-col items-center w-full max-w-sm">
                     <div className="relative mb-12 scale-110">
-                        <h2 className="title-3d text-6xl italic tracking-tighter leading-[0.8] mb-2 scale-x-110 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">最後的</h2>
-                        <h2 className="title-3d text-7xl italic tracking-tighter leading-[0.8] text-amber-500 scale-x-110 drop-shadow-[0_10px_30px_rgba(245,158,11,0.3)]">戰場</h2>
+                        <h2 className="title-3d text-6xl italic tracking-tighter leading-[0.8] mb-2 scale-x-110 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">火柴人</h2>
+                        <h2 className="title-3d text-7xl italic tracking-tighter leading-[0.8] text-amber-500 scale-x-110 drop-shadow-[0_10px_30px_rgba(245,158,11,0.3)]">大逃亡</h2>
 
                         <div className="absolute -bottom-4 right-0 px-5 py-2 bg-amber-600 text-white font-black text-xl italic skew-x-[-15deg] border-2 border-white shadow-xl">
-                            LAST WAR
+                            ESCAPE
                         </div>
                     </div>
 

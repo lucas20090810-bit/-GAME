@@ -130,10 +130,10 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
             </header>
 
             {/* Main Content Area */}
-            <section className="relative z-10 flex-1 px-5 pt-2 flex flex-col gap-4 overflow-y-auto noscrollbar">
+            <section className="relative z-10 flex-1 px-5 pt-2 flex flex-col items-center gap-4 overflow-y-auto noscrollbar">
 
                 {/* Row 1: Small Buttons (Shop & Mail) */}
-                <div className="grid grid-cols-2 gap-3 min-h-[90px]">
+                <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
                     <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleAction('shop')}
