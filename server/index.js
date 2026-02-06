@@ -34,8 +34,8 @@ const getManifest = () => {
         }
     } catch (e) { }
     return {
-        version: "1.1.0",
-        ota_version: "2026.0206.A",
+        version: "1.2.0",
+        ota_version: "1.2.0",
         url: "https://game-xhnj.onrender.com/updates/latest.zip",
         downloadUrl: "https://game-xhnj.onrender.com/updates/latest.zip",
         message: "修正 UI 與 2048 遊戲邏輯",

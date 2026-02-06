@@ -4,8 +4,8 @@
  */
 export const CONFIG = {
     // 顯示在載入畫面與選單的版本號
-    APP_VERSION: "測試1.0.5",
-    RESOURCE_VERSION: "2251.0205.A",
+    APP_VERSION: "1.2.0",
+    RESOURCE_VERSION: "1.2.0",
     ENGINE_VERSION: "v1.5.0",
 
     // 是否強制開啟訪客模式 (開發/沒網路時建議開啟)
