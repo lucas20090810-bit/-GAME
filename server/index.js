@@ -7,6 +7,14 @@ const path = require('path');
 dotenv.config();
 
 const { packageUpdate } = require('./package-update');
+const {
+    initGoogleClient,
+    generateAccessToken,
+    generateRefreshToken,
+    requireAuth,
+    verifyGoogleToken,
+    verifyFacebookToken
+} = require('./auth');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,9 +52,165 @@ const getManifest = () => {
     };
 };
 
+// Initialize Google OAuth Client
+initGoogleClient();
+
 app.get('/api/version', (req, res) => res.json(getManifest()));
 
-// Profile API
+// ========================================
+// OAuth Authentication Endpoints
+// ========================================
+
+/**
+ * POST /api/auth/google
+ * Verify Google ID Token and create/login user
+ */
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        const { idToken } = req.body;
+
+        if (!idToken) {
+            return res.status(400).json({ error: 'idToken required' });
+        }
+
+        // Verify with Google
+        const googleUser = await verifyGoogleToken(idToken);
+
+        // Get or create user in database
+        const data = getData();
+        let user = data.users[googleUser.id];
+
+        if (!user) {
+            // Create new user
+            user = {
+                id: googleUser.id,
+                email: googleUser.email,
+                name: googleUser.name,
+                avatar: googleUser.picture,
+                provider: 'google',
+                coins: 1000,
+                inventory: [],
+                mails: [],
+                createdAt: new Date().toISOString()
+            };
+            data.users[googleUser.id] = user;
+            setData(data);
+            console.log(`✅ New Google user created: ${user.email}`);
+        } else {
+            console.log(`✅ Google user logged in: ${user.email}`);
+        }
+
+        // Generate JWT tokens
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        res.json({
+            success: true,
+            accessToken,
+            refreshToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                avatar: user.avatar,
+                coins: user.coins
+            }
+        });
+    } catch (error) {
+        console.error('Google auth error:', error);
+        res.status(401).json({ error: error.message || 'Authentication failed' });
+    }
+});
+
+/**
+ * POST /api/auth/facebook
+ * Verify Facebook Access Token and create/login user
+ */
+app.post('/api/auth/facebook', async (req, res) => {
+    try {
+        const { accessToken } = req.body;
+
+        if (!accessToken) {
+            return res.status(400).json({ error: 'accessToken required' });
+        }
+
+        // Verify with Facebook
+        const fbUser = await verifyFacebookToken(accessToken);
+
+        // Get or create user
+        const data = getData();
+        let user = data.users[fbUser.id];
+
+        if (!user) {
+            user = {
+                id: fbUser.id,
+                email: fbUser.email,
+                name: fbUser.name,
+                avatar: fbUser.picture,
+                provider: 'facebook',
+                coins: 1000,
+                inventory: [],
+                mails: [],
+                createdAt: new Date().toISOString()
+            };
+            data.users[fbUser.id] = user;
+            setData(data);
+            console.log(`✅ New Facebook user created: ${user.email}`);
+        } else {
+            console.log(`✅ Facebook user logged in: ${user.email}`);
+        }
+
+        // Generate JWT tokens
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        res.json({
+            success: true,
+            accessToken,
+            refreshToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                avatar: user.avatar,
+                coins: user.coins
+            }
+        });
+    } catch (error) {
+        console.error('Facebook auth error:', error);
+        res.status(401).json({ error: error.message || 'Authentication failed' });
+    }
+});
+
+/**
+ * POST /api/auth/verify
+ * Verify a JWT token and return user info
+ */
+app.post('/api/auth/verify', requireAuth, (req, res) => {
+    const data = getData();
+    const user = data.users[req.userId];
+
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+        valid: true,
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            avatar: user.avatar,
+            coins: user.coins
+        }
+    });
+});
+
+// ========================================
+// Protected APIs (require authentication)
+// ========================================
+
+// Profile API (now protected)
 app.get('/api/user/:id', (req, res) => {
     const data = getData();
     const user = data.users[req.params.id];
@@ -54,7 +218,7 @@ app.get('/api/user/:id', (req, res) => {
     res.json(user);
 });
 
-app.post('/api/user/:id/update', (req, res) => {
+app.post('/api/user/:id/update', requireAuth, (req, res) => {
     const { name, avatar } = req.body;
     const data = getData();
     if (!data.users[req.params.id]) {

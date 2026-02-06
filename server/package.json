@@ -13,10 +13,12 @@
   "type": "commonjs",
   "dependencies": {
     "archiver": "^7.0.1",
+    "axios": "^1.13.4",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "facebook-nodejs-business-sdk": "^24.0.1",
+    "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2"
   }

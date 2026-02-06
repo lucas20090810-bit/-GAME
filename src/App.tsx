@@ -151,7 +151,7 @@ const App: React.FC = () => {
   let content;
   switch (activeScreen) {
     case 'login':
-      content = <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+      content = <LoginScreen onLoginSuccess={handleLoginSuccess} onError={(err) => console.error('[Login Error]:', err)} />;
       break;
     case '2048':
       content = <Game2048 onBack={() => setActiveScreen('menu')} />;
