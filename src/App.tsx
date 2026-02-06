@@ -5,6 +5,7 @@ import MainMenu from './components/MainMenu';
 import Game2048 from './games/2048/Game2048';
 import PingPong from './games/PingPong/PingPong';
 import PingPong3D from './games/PingPong3D/PingPong3D';
+import ReactionGame from './games/ReactionGame/ReactionGame';
 import ProfileScreen from './components/ProfileScreen';
 import ShopScreen from './components/ShopScreen';
 import Mailbox from './components/Mailbox';
@@ -55,7 +56,7 @@ const initLiveUpdate = async () => {
 // Start loading immediately
 initLiveUpdate();
 
-type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'pingpong3d' | 'profile' | 'shop' | 'mail' | 'admin';
+type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'pingpong3d' | 'reaction' | 'profile' | 'shop' | 'mail' | 'admin';
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -185,6 +186,9 @@ const App: React.FC = () => {
       break;
     case 'pingpong3d':
       content = <PingPong3D onBack={() => setActiveScreen('menu')} />;
+      break;
+    case 'reaction':
+      content = <ReactionGame onBack={() => setActiveScreen('menu')} />;
       break;
     case 'profile':
       content = <ProfileScreen
