@@ -7,20 +7,19 @@ interface PingPongProps {
     onBack: () => void;
 }
 
-// Changed to landscape ratio that fits horizontal screen
-const CANVAS_WIDTH = 480;
-const CANVAS_HEIGHT = 280;
-const PADDLE_WIDTH = 80;
+// Landscape-friendly canvas size
+const CANVAS_WIDTH = 400;
+const CANVAS_HEIGHT = 220;
+const PADDLE_WIDTH = 70;
 const PADDLE_HEIGHT = 10;
-const BALL_SIZE = 10;
+const BALL_SIZE = 8;
 
 const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(0);
     const [gameOver, setGameOver] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
 
     const gameStateRef = useRef({
         paddleX: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
@@ -43,58 +42,34 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
         setGameOver(false);
         setScore(0);
         resetBall();
-        const state = gameStateRef.current;
-        state.paddleX = CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2;
-        setIsPaused(false);
+        gameStateRef.current.paddleX = CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2;
         playSound('click');
     };
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-        touchStartRef.current = {
-            x: e.touches[0].clientX,
-            y: e.touches[0].clientY
-        };
-    };
-
     const handleTouchMove = (e: React.TouchEvent) => {
-        if (!touchStartRef.current) return;
         e.preventDefault();
-
         const touch = e.touches[0];
         const rect = canvasRef.current?.getBoundingClientRect();
         if (!rect) return;
-
-        // Calculate paddle position based on touch
         const relativeX = touch.clientX - rect.left;
         const normalizedX = (relativeX / rect.width) * CANVAS_WIDTH;
-
-        gameStateRef.current.paddleX = Math.max(
-            0,
-            Math.min(CANVAS_WIDTH - PADDLE_WIDTH, normalizedX - PADDLE_WIDTH / 2)
-        );
-    };
-
-    const handleTouchEnd = () => {
-        touchStartRef.current = null;
+        gameStateRef.current.paddleX = Math.max(0, Math.min(CANVAS_WIDTH - PADDLE_WIDTH, normalizedX - PADDLE_WIDTH / 2));
     };
 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
         const gameLoop = () => {
-            if (isPaused || gameOver) return;
-
+            if (gameOver) return;
             const state = gameStateRef.current;
 
-            // Clear canvas
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-            // Draw center line
+            // Center line
             ctx.strokeStyle = '#334155';
             ctx.setLineDash([5, 5]);
             ctx.beginPath();
@@ -103,19 +78,14 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Draw paddle
+            // Paddle
             ctx.fillStyle = '#38bdf8';
             ctx.shadowColor = '#38bdf8';
             ctx.shadowBlur = 10;
-            ctx.fillRect(
-                state.paddleX,
-                CANVAS_HEIGHT - PADDLE_HEIGHT - 20,
-                PADDLE_WIDTH,
-                PADDLE_HEIGHT
-            );
+            ctx.fillRect(state.paddleX, CANVAS_HEIGHT - PADDLE_HEIGHT - 15, PADDLE_WIDTH, PADDLE_HEIGHT);
             ctx.shadowBlur = 0;
 
-            // Draw ball
+            // Ball
             ctx.fillStyle = '#facc15';
             ctx.shadowColor = '#facc15';
             ctx.shadowBlur = 15;
@@ -124,45 +94,31 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Update ball position
+            // Update ball
             state.ballX += state.ballSpeedX;
             state.ballY += state.ballSpeedY;
 
-            // Ball collision with walls
+            // Wall collision
             if (state.ballX <= BALL_SIZE / 2 || state.ballX >= CANVAS_WIDTH - BALL_SIZE / 2) {
                 state.ballSpeedX *= -1;
-                try { playSound('click'); } catch (e) { }
             }
-
-            // Ball collision with top
             if (state.ballY <= BALL_SIZE / 2) {
                 state.ballSpeedY *= -1;
-                try { playSound('click'); } catch (e) { }
             }
 
-            // Ball collision with paddle
-            const paddleTop = CANVAS_HEIGHT - PADDLE_HEIGHT - 20;
-            if (
-                state.ballY + BALL_SIZE / 2 >= paddleTop &&
-                state.ballY + BALL_SIZE / 2 <= paddleTop + PADDLE_HEIGHT &&
-                state.ballX >= state.paddleX &&
-                state.ballX <= state.paddleX + PADDLE_WIDTH
-            ) {
+            // Paddle collision
+            const paddleTop = CANVAS_HEIGHT - PADDLE_HEIGHT - 15;
+            if (state.ballY + BALL_SIZE / 2 >= paddleTop && state.ballY + BALL_SIZE / 2 <= paddleTop + PADDLE_HEIGHT &&
+                state.ballX >= state.paddleX && state.ballX <= state.paddleX + PADDLE_WIDTH) {
                 state.ballSpeedY *= -1;
-                // Add some variation based on where it hit the paddle
-                const hitPos = (state.ballX - state.paddleX) / PADDLE_WIDTH;
-                state.ballSpeedX = (hitPos - 0.5) * 8;
+                state.ballSpeedX = ((state.ballX - state.paddleX) / PADDLE_WIDTH - 0.5) * 8;
                 setScore(prev => prev + 1);
-                try { playSound('success'); } catch (e) { }
             }
 
-            // Ball falls off screen
+            // Game over
             if (state.ballY >= CANVAS_HEIGHT + BALL_SIZE) {
                 setGameOver(true);
-                if (score > highScore) {
-                    setHighScore(score);
-                }
-                try { playSound('fail'); } catch (e) { }
+                if (score > highScore) setHighScore(score);
                 return;
             }
 
@@ -170,83 +126,51 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
         };
 
         gameLoop();
-
-        return () => {
-            if (gameStateRef.current.animationId) {
-                cancelAnimationFrame(gameStateRef.current.animationId);
-            }
-        };
-    }, [isPaused, gameOver, score, highScore]);
+        return () => { if (gameStateRef.current.animationId) cancelAnimationFrame(gameStateRef.current.animationId); };
+    }, [gameOver, score, highScore]);
 
     return (
-        <motion.div
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-            className="fixed inset-0 flex flex-col bg-slate-900 overflow-hidden"
-        >
-            {/* Header */}
-            <header className="px-2 py-4 flex items-center justify-between mb-4">
-                <button
-                    onClick={onBack}
-                    className="p-3 glass-card hover:bg-white/10 active:scale-95 transition-all rounded-2xl"
-                >
+        <div className="fixed inset-0 flex bg-slate-900 overflow-hidden">
+            {/* Left: Controls */}
+            <div className="flex flex-col items-center justify-center px-4 py-4 gap-3 shrink-0">
+                <button onClick={onBack} className="p-2 glass-card hover:bg-white/10 active:scale-95 rounded-xl">
                     <ArrowLeft size={20} />
                 </button>
-                <div className="flex flex-col items-center">
-                    <h2 className="text-2xl font-black italic tracking-tighter uppercase text-primary">打桌球</h2>
-                    <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">Ping Pong</p>
+                <div className="glass-card px-3 py-2 text-center">
+                    <p className="text-[9px] text-slate-500 uppercase">分數</p>
+                    <p className="text-xl font-black text-primary">{score}</p>
                 </div>
-                <div className="w-12" />
-            </header>
+                <div className="glass-card px-3 py-2 text-center">
+                    <p className="text-[9px] text-slate-500 uppercase">最高</p>
+                    <p className="text-lg font-bold">{highScore}</p>
+                </div>
+            </div>
 
-            {/* Game Canvas Container */}
-            <div className="flex-1 flex items-center justify-center relative px-4">
+            {/* Center: Game Canvas */}
+            <div className="flex-1 flex items-center justify-center">
                 <div className="relative">
                     <canvas
                         ref={canvasRef}
                         width={CANVAS_WIDTH}
                         height={CANVAS_HEIGHT}
-                        onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                        className="border-4 border-primary/20 rounded-xl shadow-2xl touch-none"
-                        style={{ maxWidth: '100%', height: 'auto' }}
+                        className="border-2 border-primary/30 rounded-xl shadow-2xl touch-none"
                     />
 
-                    {/* Score Overlay */}
-                    <div className="absolute top-8 left-0 right-0 flex justify-center pointer-events-none">
-                        <div className="glass-card px-6 py-3 rounded-2xl border-primary/30">
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-black italic text-primary">{score}</span>
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">分</span>
-                            </div>
-                            <p className="text-[8px] font-bold text-slate-600 text-center mt-1 uppercase">High: {highScore}</p>
-                        </div>
-                    </div>
-
-                    {/* Game Over Overlay */}
+                    {/* Game Over */}
                     <AnimatePresence>
                         {gameOver && (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md rounded-xl"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm rounded-xl"
                             >
-                                <div className="glass-card p-8 rounded-3xl border-primary/30 text-center max-w-xs">
-                                    <h3 className="text-3xl font-black italic mb-2 uppercase text-primary">Game Over</h3>
-                                    <p className="text-sm text-slate-400 mb-6 font-medium">最終得分</p>
-                                    <div className="text-5xl font-black italic text-white mb-2">{score}</div>
-                                    {score > highScore && (
-                                        <p className="text-xs text-amber-400 font-bold uppercase mb-6 animate-pulse">🏆 新紀錄！</p>
-                                    )}
-                                    <button
-                                        onClick={resetGame}
-                                        className="w-full py-4 bg-primary text-black font-black rounded-2xl flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
-                                    >
-                                        <RotateCcw size={20} />
-                                        再來一局
+                                <div className="text-center">
+                                    <h3 className="text-2xl font-black text-primary mb-1">Game Over</h3>
+                                    <p className="text-3xl font-black text-white mb-3">{score}</p>
+                                    <button onClick={resetGame} className="px-6 py-2 bg-primary text-black font-bold rounded-xl flex items-center gap-2 active:scale-95">
+                                        <RotateCcw size={16} /> 再來
                                     </button>
                                 </div>
                             </motion.div>
@@ -255,11 +179,11 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
                 </div>
             </div>
 
-            {/* Instructions */}
-            <div className="px-6 py-4 text-center">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">滑動屏幕控制擋板 ‧ 別讓球掉下去！</p>
+            {/* Right: Instructions */}
+            <div className="flex items-center justify-center px-4">
+                <p className="text-[10px] text-slate-500 text-center leading-relaxed" style={{ writingMode: 'vertical-rl' }}>滑動控制擋板</p>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
