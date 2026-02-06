@@ -6,9 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     LiveUpdate: {
-      enabled: true,
-      autoUpdate: true,
-      location: 'https://game-xhnj.onrender.com',
+      autoDeleteBundles: true,
+      readyTimeout: 10000,
     },
   },
 };
