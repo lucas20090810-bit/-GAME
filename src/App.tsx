@@ -132,30 +132,34 @@ const App: React.FC = () => {
   };
 
   const handlePerformUpdate = async () => {
-    if (Capacitor.isNativePlatform() && LiveUpdate && updateInfo) {
+    if (!updateInfo) return;
+
+    if (Capacitor.isNativePlatform()) {
+      if (!LiveUpdate) {
+        alert("⚠️ 更新套件未啟動！這通常是因為目前的 APK 不包含熱更新組件。請重新編譯並安裝最新 APK 後再試。");
+        if (updateInfo.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+        return;
+      }
+
       try {
         console.log('[OTA] Manual download start:', updateInfo.downloadUrl);
         const bid = updateInfo.ota_version || Date.now().toString();
 
-        // 1. Download the bundle directly from the URL
         await LiveUpdate.downloadBundle({
           url: updateInfo.downloadUrl,
           bundleId: bid
         });
 
-        // 2. Set the downloaded bundle as the active one
         await LiveUpdate.setBundle({ bundleId: bid });
-
-        // 3. Reload to apply changes immediately
         await LiveUpdate.reload();
-      } catch (e) {
+        return;
+      } catch (e: any) {
         console.error('[OTA] Manual update failed:', e);
-        // Ultra-fallback if plugin fails
-        if (updateInfo.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+        alert("❌ 下載更新失敗：" + (e.message || "未知錯誤"));
       }
-    } else {
-      if (updateInfo?.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
     }
+
+    if (updateInfo.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
   };
 
   // Simple conditional rendering - NO AnimatePresence at top level
