@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Gamepad2, User, Trophy, Target, ShoppingCart, Mail, Settings, Coins } from 'lucide-react';
+import { Gamepad2, User, Trophy, Target, Layers, ShoppingCart, Mail, Settings, Coins } from 'lucide-react';
 import { playSound } from '../utils/sound';
 
 interface GameCard {
@@ -15,6 +15,7 @@ const games: GameCard[] = [
     { id: 'pingpong', title: '桌球', icon: <Trophy className="w-8 h-8" />, color: 'from-emerald-500 to-green-700' },
     { id: 'pingpong3d', title: '1v1 桌球', icon: <Trophy className="w-8 h-8" />, color: 'from-purple-500 to-violet-700' },
     { id: 'reaction', title: '反應力測試', icon: <Target className="w-8 h-8" />, color: 'from-pink-500 to-purple-700' },
+    { id: 'jumpjump', title: '跳一跳', icon: <Layers className="w-8 h-8" />, color: 'from-cyan-500 to-teal-700' },
 ];
 
 const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string) => void }> = ({ userData, news, onSelectGame }) => {

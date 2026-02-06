@@ -6,6 +6,7 @@ import Game2048 from './games/2048/Game2048';
 import PingPong from './games/PingPong/PingPong';
 import PingPong3D from './games/PingPong3D/PingPong3D';
 import ReactionGame from './games/ReactionGame/ReactionGame';
+import JumpJump from './games/JumpJump/JumpJump';
 import ProfileScreen from './components/ProfileScreen';
 import ShopScreen from './components/ShopScreen';
 import Mailbox from './components/Mailbox';
@@ -58,7 +59,7 @@ const initUpdater = async () => {
 // Start loading immediately
 initUpdater();
 
-type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'pingpong3d' | 'reaction' | 'profile' | 'shop' | 'mail' | 'admin';
+type Screen = 'login' | 'menu' | '2048' | 'pingpong' | 'pingpong3d' | 'reaction' | 'jumpjump' | 'profile' | 'shop' | 'mail' | 'admin';
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -207,6 +208,9 @@ const App: React.FC = () => {
     case 'reaction':
       content = <ReactionGame onBack={() => setActiveScreen('menu')} />;
       break;
+    case 'jumpjump':
+      content = <JumpJump onBack={() => setActiveScreen('menu')} />;
+      break;
     case 'profile':
       content = <ProfileScreen
         userData={user}
@@ -242,6 +246,7 @@ const App: React.FC = () => {
             else if (id === 'pingpong') setActiveScreen('pingpong');
             else if (id === 'pingpong3d') setActiveScreen('pingpong3d');
             else if (id === 'reaction') setActiveScreen('reaction');
+            else if (id === 'jumpjump') setActiveScreen('jumpjump');
             else if (id === 'shop') setActiveScreen('shop');
             else if (id === 'mail') setActiveScreen('mail');
             else if (id === 'profile') setActiveScreen('profile');
