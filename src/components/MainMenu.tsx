@@ -72,9 +72,9 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
             {/* Top Info Bar */}
             <header className="relative z-10 p-0 py-4 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <button onClick={() => handleAction('profile')} className="flex items-center gap-4 group cursor-pointer">
                         <div className="relative">
-                            <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-primary via-secondary to-primary p-[3px] shadow-2xl shadow-primary/30">
+                            <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-primary via-secondary to-primary p-[3px] shadow-2xl shadow-primary/30 group-hover:shadow-primary/50 transition-shadow">
                                 <div className="w-full h-full bg-slate-900 rounded-[17px] flex items-center justify-center overflow-hidden">
                                     <User size={36} className="text-primary opacity-40" />
                                 </div>
@@ -83,14 +83,14 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
                                 Lv.42
                             </div>
                         </div>
-                        <div>
-                            <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none text-white drop-shadow-md">{userData.name}</h2>
+                        <div className="text-left">
+                            <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none text-white drop-shadow-md group-hover:text-primary transition-colors">{userData.name}</h2>
                             <div className="flex items-center gap-1.5 mt-2">
                                 <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-500/80">Operational</span>
                             </div>
                         </div>
-                    </div>
+                    </button>
 
                     <div className="flex flex-col gap-2 scale-110">
                         {/* Coins */}
