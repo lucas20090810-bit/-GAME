@@ -150,10 +150,19 @@ const App: React.FC = () => {
         const bid = updateInfo.ota_version || `v${updateInfo.version}_${Date.now()}`;
         console.log('[OTA] Downloading bundle ID:', bid, 'from', updateInfo.downloadUrl);
 
-        await LiveUpdate.downloadBundle({
-          url: updateInfo.downloadUrl,
-          bundleId: bid
-        });
+        try {
+          await LiveUpdate.downloadBundle({
+            url: updateInfo.downloadUrl,
+            bundleId: bid
+          });
+        } catch (downloadErr: any) {
+          // If bundle already exists, that's fine - we can still use it
+          if (downloadErr.message && downloadErr.message.includes('already exists')) {
+            console.log('[OTA] Bundle already exists, attempting to use existing bundle');
+          } else {
+            throw downloadErr;
+          }
+        }
 
         await LiveUpdate.setBundle({ bundleId: bid });
 
@@ -162,7 +171,14 @@ const App: React.FC = () => {
         return;
       } catch (e: any) {
         console.error('[OTA] Error during process:', e);
-        alert(`❌ 更新失敗：${e.message || '連線逾時或空間不足'}`);
+
+        // Provide more specific error messages
+        if (e.message && e.message.includes('already exists')) {
+          alert("⚠️ 此版本已安裝，請重啟 App 套用更新。");
+          await LiveUpdate.reload();
+        } else {
+          alert(`❌ 更新失敗：${e.message || '連線逾時或空間不足'}`);
+        }
         return;
       }
     }
