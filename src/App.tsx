@@ -15,16 +15,25 @@ import { Capacitor } from '@capacitor/core';
 
 // OTA Live Update (only works on native platforms)
 let LiveUpdate: any = null;
-const loadLiveUpdate = async () => {
-  if (Capacitor.isNativePlatform()) {
-    try {
-      const module = await import('@capawesome/capacitor-live-update');
-      LiveUpdate = module.LiveUpdate;
-      console.log('[OTA] LiveUpdate initialized');
-    } catch (e) { console.log('[OTA] LiveUpdate not available'); }
+
+const initLiveUpdate = async () => {
+  if (!Capacitor.isNativePlatform()) return;
+
+  try {
+    const module = await import('@capawesome/capacitor-live-update');
+    LiveUpdate = module.LiveUpdate;
+    console.log('[OTA] LiveUpdate plugin loaded');
+
+    // CRITICAL: Call ready() immediately after plugin loads to prevent rollback
+    const result = await LiveUpdate.ready();
+    console.log('[OTA] ready() called successfully:', result);
+  } catch (e) {
+    console.error('[OTA] LiveUpdate init failed:', e);
   }
 };
-loadLiveUpdate();
+
+// Start loading immediately
+initLiveUpdate();
 
 type Screen = 'menu' | '2048' | 'pingpong' | 'profile' | 'shop' | 'mail' | 'admin';
 
@@ -32,7 +41,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [readyToStart, setReadyToStart] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>('menu');
-  const [user, setUser] = useState<any>(CONFIG.DEFAULT_USER); // Initialize with default immediately
+  const [user, setUser] = useState<any>(CONFIG.DEFAULT_USER);
   const [shopItems, setShopItems] = useState([]);
   const [news, setNews] = useState([]);
   const [updateInfo, setUpdateInfo] = useState<VersionInfo | null>(null);
@@ -70,22 +79,8 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // OTA Update Check (Native Platform Only)
-  const checkOTAUpdate = useCallback(async () => {
-    if (!LiveUpdate || !Capacitor.isNativePlatform()) return;
-
-    try {
-      // Notify plugin that app loaded successfully (prevents rollback)
-      await LiveUpdate.ready();
-      console.log('[OTA] App marked as ready');
-    } catch (error) {
-      console.error('[OTA] ready() failed:', error);
-    }
-  }, []);
-
   useEffect(() => {
     init();
-    checkOTAUpdate();
 
     const refreshInterval = setInterval(() => {
       console.log(">>> [APP] PERIODIC REFRESH");
@@ -93,7 +88,7 @@ const App: React.FC = () => {
     }, 30000);
 
     return () => clearInterval(refreshInterval);
-  }, [init, checkOTAUpdate]);
+  }, [init]);
 
   // Show popup when game starts
   useEffect(() => {
@@ -158,6 +153,10 @@ const App: React.FC = () => {
         }
 
         await LiveUpdate.setNextBundle({ bundleId: bid });
+
+        // Save the version we're about to apply
+        const { setAppliedOtaVersion } = await import('./utils/updateManager');
+        setAppliedOtaVersion(bid);
 
         alert("✅ 下載成功！即將重啟遊戲套用修正。");
         await LiveUpdate.reload();
