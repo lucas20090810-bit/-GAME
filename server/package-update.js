@@ -5,8 +5,9 @@ const crypto = require('crypto');
 
 /**
  * Package the dist folder into a ZIP for OTA updates
+ * @param {string} customVersion - Optional custom version to use instead of package.json version
  */
-function packageUpdate() {
+function packageUpdate(customVersion) {
     return new Promise((resolve, reject) => {
         const distPath = path.join(__dirname, '../dist');
         const outputDir = path.join(__dirname, 'public/updates');
@@ -28,12 +29,16 @@ function packageUpdate() {
             const fileBuffer = fs.readFileSync(outputPath);
             const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
 
-            // Read package.json for version (no cache)
-            const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+            // Use custom version if provided, otherwise read from package.json
+            let version = customVersion;
+            if (!version) {
+                const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+                version = packageJson.version;
+            }
 
             // Create manifest
             const manifest = {
-                version: packageJson.version,
+                version: version,
                 ota_version: Date.now().toString(),
                 url: 'https://game-xhnj.onrender.com/updates/latest.zip',
                 downloadUrl: 'https://game-xhnj.onrender.com/updates/latest.zip',

@@ -214,9 +214,9 @@ app.post('/api/admin/trigger-update', async (req, res) => {
         const { version, message } = req.body;
         console.log(`📦 Received trigger: v${version} - ${message}`);
 
-        // Direct package existing dist folder
+        // Direct package existing dist folder with custom version
         console.log('📦 Packaging build...');
-        const manifest = await packageUpdate();
+        const manifest = await packageUpdate(version);
 
         res.json({
             success: true,
