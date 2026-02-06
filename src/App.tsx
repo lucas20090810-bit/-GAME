@@ -103,13 +103,28 @@ const App: React.FC = () => {
         const message = `發現新版本 ${updateInfo.version}\n${updateInfo.message || ''}\n\n立即更新？`;
         if (confirm(message)) {
           try {
-            console.log('[OTA] Starting sync with URL:', updateInfo.downloadUrl);
-            await LiveUpdate.sync({ url: updateInfo.downloadUrl });
-            console.log('[OTA] Sync completed, reloading app...');
+            console.log('[OTA] Downloading bundle...', updateInfo.downloadUrl);
+
+            // Download bundle with bundleId
+            const downloadResult = await LiveUpdate.downloadBundle({
+              url: updateInfo.downloadUrl,
+              bundleId: updateInfo.ota_version,
+            });
+            console.log('[OTA] Downloaded:', downloadResult);
+
+            // Set bundle to be used
+            await LiveUpdate.setBundle({ bundleId: updateInfo.ota_version });
+            console.log('[OTA] Bundle activated');
+
+            // Save version
+            const { setAppliedOtaVersion } = await import('./utils/updateManager');
+            setAppliedOtaVersion(updateInfo.ota_version);
+
+            // Reload
             await LiveUpdate.reload();
-          } catch (syncErr) {
-            console.error('[OTA] Sync failed:', syncErr);
-            alert('更新失敗，請稍後再試');
+          } catch (syncErr: any) {
+            console.error('[OTA] Failed:', syncErr);
+            alert(`更新失敗: ${syncErr?.message || '請檢查網路'}`);
           }
         }
       }
