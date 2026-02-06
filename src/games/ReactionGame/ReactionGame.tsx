@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Trophy, X } from 'lucide-react';
+import { Target, X } from 'lucide-react';
 
 interface ReactionGameProps {
     onBack: () => void;
