@@ -122,8 +122,8 @@ const App: React.FC = () => {
             const { setAppliedOtaVersion } = await import('./utils/updateManager');
             setAppliedOtaVersion(updateInfo.ota_version);
 
-            // Reload
-            await CapacitorUpdater.reload();
+            // Prompt to restart manually - Capgo requires full app restart
+            alert('更新已下載！請完全關閉APP後重新啟動以套用更新。');
           } catch (syncErr: any) {
             console.error('[OTA] Failed:', syncErr);
             alert(`更新失敗: ${syncErr?.message || '請檢查網路'}`);
