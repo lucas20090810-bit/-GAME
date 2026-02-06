@@ -75,18 +75,11 @@ const App: React.FC = () => {
     if (!LiveUpdate || !Capacitor.isNativePlatform()) return;
 
     try {
-      console.log('[OTA] Checking for updates...');
-      const result = await LiveUpdate.sync();
-
-      if (result.nextBundleId) {
-        console.log('[OTA] New bundle available:', result.nextBundleId);
-        // Download and install the new bundle
-        await LiveUpdate.reload();
-      } else {
-        console.log('[OTA] App is up to date');
-      }
+      // Notify plugin that app loaded successfully (prevents rollback)
+      await LiveUpdate.ready();
+      console.log('[OTA] App marked as ready');
     } catch (error) {
-      console.error('[OTA] Update check failed:', error);
+      console.error('[OTA] ready() failed:', error);
     }
   }, []);
 
@@ -164,7 +157,7 @@ const App: React.FC = () => {
           }
         }
 
-        await LiveUpdate.setBundle({ bundleId: bid });
+        await LiveUpdate.setNextBundle({ bundleId: bid });
 
         alert("✅ 下載成功！即將重啟遊戲套用修正。");
         await LiveUpdate.reload();
