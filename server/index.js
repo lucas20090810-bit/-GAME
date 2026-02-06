@@ -160,20 +160,24 @@ app.delete('/api/admin/news/:id', (req, res) => {
 // OTA Live Update APIs
 // ========================================
 
-// Get update manifest
-app.get('/api/live-update/manifest', (req, res) => {
+// Get update manifest (Multiple paths for compatibility)
+const serveManifest = (req, res) => {
     try {
         const manifestPath = path.join(__dirname, 'public/updates/manifest.json');
         if (fs.existsSync(manifestPath)) {
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
             res.json(manifest);
         } else {
-            res.status(404).json({ error: 'No updates available' });
+            res.json(getManifest());
         }
     } catch (error) {
         res.status(500).json({ error: 'Failed to read manifest' });
     }
-});
+};
+
+app.get('/api/live-update/manifest', serveManifest);
+app.get('/live-updates.json', serveManifest);
+app.get('/live-update-manifest.json', serveManifest);
 
 // Trigger update packaging (admin only)
 app.post('/api/admin/trigger-update', async (req, res) => {

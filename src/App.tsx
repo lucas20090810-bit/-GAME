@@ -134,16 +134,18 @@ const App: React.FC = () => {
   const handlePerformUpdate = async () => {
     if (!updateInfo) return;
 
-    if (Capacitor.isNativePlatform()) {
+    const isNative = Capacitor.isNativePlatform();
+    console.log('[OTA] Attempting update. Native:', isNative, 'LiveUpdate Plugged:', !!LiveUpdate);
+
+    if (isNative) {
       if (!LiveUpdate) {
-        alert("⚠️ 更新套件未啟動！這通常是因為目前的 APK 不包含熱更新組件。請重新編譯並安裝最新 APK 後再試。");
-        if (updateInfo.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+        alert("⚠️ 偵測到您在行動裝置，但「熱更新插件」未啟動。\n\n這代表您目前的 APK 過舊。請重新下載最新 APK 才能享有此功能。");
         return;
       }
 
       try {
-        console.log('[OTA] Manual download start:', updateInfo.downloadUrl);
-        const bid = updateInfo.ota_version || Date.now().toString();
+        const bid = updateInfo.ota_version || `v${updateInfo.version}_${Date.now()}`;
+        console.log('[OTA] Downloading bundle ID:', bid, 'from', updateInfo.downloadUrl);
 
         await LiveUpdate.downloadBundle({
           url: updateInfo.downloadUrl,
@@ -151,15 +153,21 @@ const App: React.FC = () => {
         });
 
         await LiveUpdate.setBundle({ bundleId: bid });
+
+        alert("✅ 下載成功！即將重啟遊戲套用修正。");
         await LiveUpdate.reload();
         return;
       } catch (e: any) {
-        console.error('[OTA] Manual update failed:', e);
-        alert("❌ 下載更新失敗：" + (e.message || "未知錯誤"));
+        console.error('[OTA] Error during process:', e);
+        alert(`❌ 更新失敗：${e.message || '連線逾時或空間不足'}`);
+        return;
       }
     }
 
-    if (updateInfo.downloadUrl) window.open(updateInfo.downloadUrl, '_blank');
+    const confirmWeb = confirm("您正在使用瀏覽器，是否要手動下載更新包？");
+    if (confirmWeb && updateInfo.downloadUrl) {
+      window.open(updateInfo.downloadUrl, '_blank');
+    }
   };
 
   // Simple conditional rendering - NO AnimatePresence at top level
