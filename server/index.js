@@ -98,8 +98,25 @@ app.get('/api/news', (req, res) => res.json(getData().news));
 
 // Admin API
 app.post('/api/admin/news', (req, res) => {
+    const { title, content } = req.body;
     const data = getData();
-    const newNews = { id: Date.now().toString(), ...req.body, date: new Date().toISOString().split('T')[0] };
+
+    // Parse color: "color|message"
+    let color = 'sky';
+    let realContent = content;
+    if (content.includes('|')) {
+        const parts = content.split('|');
+        color = parts[0];
+        realContent = parts.slice(1).join('|');
+    }
+
+    const newNews = {
+        id: Date.now().toString(),
+        title,
+        content: realContent,
+        color,
+        date: new Date().toISOString().split('T')[0]
+    };
     data.news.unshift(newNews);
     setData(data);
     res.json(newNews);
@@ -152,6 +169,18 @@ app.delete('/api/admin/popup/:id', (req, res) => {
 app.delete('/api/admin/news/:id', (req, res) => {
     const data = getData();
     data.news = data.news.filter(n => n.id !== req.params.id);
+    setData(data);
+    res.json({ success: true });
+});
+
+app.delete('/api/admin/mail/:targetId/:mailId', (req, res) => {
+    const { targetId, mailId } = req.params;
+    const data = getData();
+    if (targetId === 'all') {
+        Object.values(data.users).forEach(u => u.mails = u.mails.filter(m => m.id !== mailId));
+    } else if (data.users[targetId]) {
+        data.users[targetId].mails = data.users[targetId].mails.filter(m => m.id !== mailId);
+    }
     setData(data);
     res.json({ success: true });
 });

@@ -36,6 +36,7 @@ const App: React.FC = () => {
   const [shopItems, setShopItems] = useState([]);
   const [news, setNews] = useState([]);
   const [updateInfo, setUpdateInfo] = useState<VersionInfo | null>(null);
+  const [allPopups, setAllPopups] = useState<any[]>([]);
   const [currentPopup, setCurrentPopup] = useState<any>(null);
 
   const init = useCallback(async () => {
@@ -59,15 +60,7 @@ const App: React.FC = () => {
       setUser(userData || CONFIG.DEFAULT_USER);
       setShopItems(shop || []);
       setNews(newsData || []);
-
-      // Show first popup if exists and not dismissed
-      if (popups && popups.length > 0) {
-        const dismissedPopups = JSON.parse(localStorage.getItem('dismissed-popups') || '[]');
-        const unshownPopup = popups.find((p: any) => !dismissedPopups.includes(p.id));
-        if (unshownPopup && readyToStart) {
-          setCurrentPopup(unshownPopup);
-        }
-      }
+      if (popups) setAllPopups(popups);
     } catch (e) {
       console.error("Init error", e);
     } finally {
@@ -99,9 +92,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     init();
-    checkOTAUpdate(); // Check for OTA updates on startup
+    checkOTAUpdate();
 
-    // Periodic refresh every 30 seconds to sync news/mails
     const refreshInterval = setInterval(() => {
       console.log(">>> [APP] PERIODIC REFRESH");
       init();
@@ -109,6 +101,17 @@ const App: React.FC = () => {
 
     return () => clearInterval(refreshInterval);
   }, [init, checkOTAUpdate]);
+
+  // Show popup when game starts
+  useEffect(() => {
+    if (readyToStart && allPopups.length > 0 && !currentPopup) {
+      const dismissedPopups = JSON.parse(localStorage.getItem('dismissed-popups') || '[]');
+      const unshownPopup = allPopups.find((p: any) => !dismissedPopups.includes(p.id));
+      if (unshownPopup) {
+        setCurrentPopup(unshownPopup);
+      }
+    }
+  }, [readyToStart, allPopups, currentPopup]);
 
   const handleStart = () => {
     console.log(">>> [APP] START CLICKED");

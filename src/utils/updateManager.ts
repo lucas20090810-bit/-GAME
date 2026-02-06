@@ -17,7 +17,10 @@ export const checkAndUpdate = async (): Promise<VersionInfo | null> => {
         const manifest = await getVersion() as VersionInfo;
 
         // Check if there's a newer version or OTA bundle
-        if (manifest.version !== CURRENT_APP_VERSION || manifest.ota_version !== CURRENT_OTA_VERSION) {
+        const isNewer = manifest.version !== CURRENT_APP_VERSION || manifest.ota_version !== CURRENT_OTA_VERSION;
+
+        if (isNewer) {
+            console.log(`[OTA] New version found: ${manifest.ota_version} (Current: ${CURRENT_OTA_VERSION})`);
             return manifest;
         }
         return null;

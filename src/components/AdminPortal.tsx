@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Newspaper, Mail, ShoppingCart, RefreshCw, Send, ChevronLeft, Bell } from 'lucide-react';
+import { Newspaper, Mail, ShoppingCart, RefreshCw, Send, ChevronLeft, Bell, Trash2 } from 'lucide-react';
 import { api } from '../api';
 
 const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -7,23 +7,43 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [loading, setLoading] = useState(false);
 
     const [form, setForm] = useState({
-        newsTitle: '', newsContent: '',
+        newsTitle: '', newsContent: '', newsColor: 'sky',
         mailTarget: 'all', mailTitle: '', mailContent: '',
         popupTitle: '', popupMessage: '',
-        verNum: '1.0.0', verMsg: ''
+        verNum: '1.2.0', verMsg: ''
     });
 
-    const handleAction = async (type: string) => {
+    const [newsList, setNewsList] = useState<any[]>([]);
+    const [popupsList, setPopupsList] = useState<any[]>([]);
+
+    const fetchData = async () => {
+        try {
+            const news = await api.getNews();
+            setNewsList(news);
+            const popups = await api.getPopups();
+            setPopupsList(popups);
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchData();
+    }, [tab]);
+
+    const handleAction = async (type: string, id?: string) => {
         setLoading(true);
         try {
             if (type === '彈窗公告' && form.popupTitle && form.popupMessage) {
                 await api.createPopup(form.popupTitle, form.popupMessage);
                 alert('✅ 彈窗公告發布成功！');
                 setForm({ ...form, popupTitle: '', popupMessage: '' });
+                fetchData();
             } else if (type === '新聞' && form.newsTitle && form.newsContent) {
-                await api.createNews(form.newsTitle, form.newsContent);
+                await api.createNews(form.newsTitle, `${form.newsColor}|${form.newsContent}`);
                 alert('✅ 新聞發布成功！');
                 setForm({ ...form, newsTitle: '', newsContent: '' });
+                fetchData();
             } else if (type === '郵件' && form.mailTitle && form.mailContent) {
                 await api.sendMail(form.mailTarget, form.mailTitle, form.mailContent);
                 alert('✅ 郵件發送成功！');
@@ -37,6 +57,16 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 if (response.ok) {
                     alert('✅ 熱更新已觸發！');
                 }
+            } else if (type === '刪除新聞' && id) {
+                if (confirm('確定要刪除這條新聞嗎？')) {
+                    await api.deleteNews(id);
+                    fetchData();
+                }
+            } else if (type === '刪除彈窗' && id) {
+                if (confirm('確定要刪除這個彈窗嗎？')) {
+                    await api.deletePopup(id);
+                    fetchData();
+                }
             } else {
                 alert('請填寫完整資料');
             }
@@ -49,7 +79,7 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-background text-white overflow-y-auto">
+        <div className="fixed inset-0 z-[100] bg-background text-white overflow-y-auto pb-20">
             <div className="max-w-4xl mx-auto p-6 flex flex-col min-h-screen">
                 <header className="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
                     <div className="flex items-center gap-4">
@@ -83,7 +113,7 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     ))}
                 </nav>
 
-                <main className="flex-grow glass-card p-8 min-h-[400px]">
+                <main className="flex-grow glass-card p-8 min-h-[400px] mb-10">
                     {tab === 'popup' && (
                         <section className="space-y-6 animate-fade-in">
                             <h2 className="text-xl font-black flex items-center gap-2">
@@ -96,7 +126,7 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     value={form.popupTitle} onChange={e => setForm({ ...form, popupTitle: e.target.value })}
                                 />
                                 <textarea
-                                    rows={8} placeholder="公告內容（進入遊戲時彈出顯示）..."
+                                    rows={4} placeholder="公告內容..."
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none resize-none"
                                     value={form.popupMessage} onChange={e => setForm({ ...form, popupMessage: e.target.value })}
                                 />
@@ -106,7 +136,23 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 >
                                     {loading ? '發布中...' : ' 立即發布彈窗'}
                                 </button>
-                                <p className="text-xs text-slate-500">※ 彈窗會在玩家進入遊戲後自動顯示，關閉後不會重複show。</p>
+                            </div>
+
+                            <div className="mt-10 pt-6 border-t border-white/10">
+                                <h3 className="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">歷史彈窗紀錄</h3>
+                                <div className="space-y-3">
+                                    {popupsList.map(p => (
+                                        <div key={p.id} className="glass-card p-4 flex justify-between items-center">
+                                            <div>
+                                                <p className="font-bold">{p.title}</p>
+                                                <p className="text-xs text-slate-500">{p.message.slice(0, 30)}...</p>
+                                            </div>
+                                            <button onClick={() => handleAction('刪除彈窗', p.id)} className="text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
                     )}
@@ -117,22 +163,53 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 <Newspaper className="text-primary" /> 發布最新消息
                             </h2>
                             <div className="space-y-4">
-                                <input
-                                    placeholder="新聞標題"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none"
-                                    value={form.newsTitle} onChange={e => setForm({ ...form, newsTitle: e.target.value })}
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        placeholder="新聞標題"
+                                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none"
+                                        value={form.newsTitle} onChange={e => setForm({ ...form, newsTitle: e.target.value })}
+                                    />
+                                    <select
+                                        className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 focus:outline-none"
+                                        value={form.newsColor} onChange={e => setForm({ ...form, newsColor: e.target.value })}
+                                    >
+                                        <option value="sky">藍色 (Sky)</option>
+                                        <option value="amber">橙色 (Amber)</option>
+                                        <option value="emerald">綠色 (Emerald)</option>
+                                        <option value="rose">紅色 (Rose)</option>
+                                    </select>
+                                </div>
                                 <textarea
-                                    rows={6} placeholder="消息內容..."
+                                    rows={4} placeholder="消息內容..."
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none resize-none"
                                     value={form.newsContent} onChange={e => setForm({ ...form, newsContent: e.target.value })}
                                 />
                                 <button
                                     onClick={() => handleAction('新聞')} disabled={loading}
-                                    className="w-full py-4 bg-primary rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                                    className="w-full py-4 bg-primary text-black rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
                                 >
                                     {loading ? '發布中...' : '立即發布'}
                                 </button>
+                            </div>
+
+                            <div className="mt-10 pt-6 border-t border-white/10">
+                                <h3 className="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">現有新聞列表</h3>
+                                <div className="space-y-3">
+                                    {newsList.map(n => (
+                                        <div key={n.id} className="glass-card p-4 flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-2 h-2 rounded-full bg-${n.color || 'sky'}-500`} />
+                                                <div>
+                                                    <p className="font-bold text-sm">{n.title}</p>
+                                                    <p className="text-xs text-slate-500">{n.date}</p>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => handleAction('刪除新聞', n.id)} className="text-red-500 p-2 hover:bg-red-500/10 rounded-lg">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
                     )}
@@ -144,7 +221,7 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             </h2>
                             <div className="space-y-4">
                                 <input
-                                    placeholder="對象玩家 ID (輸入 all 為全體)"
+                                    placeholder="對象玩家 ID (all 為全體)"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none"
                                     value={form.mailTarget} onChange={e => setForm({ ...form, mailTarget: e.target.value })}
                                 />
@@ -164,6 +241,7 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 >
                                     <Send className="inline mr-2" size={18} /> {loading ? '傳送中...' : '發送郵件'}
                                 </button>
+                                <p className="text-xs text-slate-500">※ 郵件發出後目前僅支援資料庫手動操作刪除（或點對點刪除）。</p>
                             </div>
                         </section>
                     )}
@@ -177,18 +255,17 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 <p className="text-sm text-primary font-bold mb-2">💡 OTA 熱更新說明</p>
                                 <p className="text-xs text-slate-400 leading-relaxed">
                                     此功能可讓您直接推送遊戲內容更新，無需玩家重新下載APK。
-                                    <br />僅限更新：遊戲邏輯、UI界面、圖片資源等前端內容。
-                                    <br />⚠️ 原生功能（如推播、權限）變更仍需打包新APK。
+                                    <br />⚠️ 目前正在運行版本號：1.2.0
                                 </p>
                             </div>
                             <div className="space-y-4">
                                 <input
-                                    placeholder="新版本號 (例如 1.0.1)"
+                                    placeholder="新版本號 (例如 1.2.1)"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none"
                                     value={form.verNum} onChange={e => setForm({ ...form, verNum: e.target.value })}
                                 />
                                 <input
-                                    placeholder="更新說明（例如：修復 2048 遊戲 bug）"
+                                    placeholder="更新說明"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary focus:outline-none"
                                     value={form.verMsg} onChange={e => setForm({ ...form, verMsg: e.target.value })}
                                 />
@@ -199,17 +276,10 @@ const AdminPortal: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 >
                                     {loading ? '推送中...' : '🚀 推播OTA熱更新'}
                                 </button>
-                                <p className="text-xs text-slate-500 text-center">
-                                    玩家將在下次啟動遊戲時自動下載並套用更新
-                                </p>
                             </div>
                         </section>
                     )}
                 </main>
-
-                <footer className="mt-8 text-center text-slate-500 text-xs">
-                    © 2026 丞丞GAME Admin System
-                </footer>
             </div>
         </div>
     );

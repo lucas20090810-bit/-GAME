@@ -87,4 +87,10 @@ export const api = {
             body: JSON.stringify({ targetId, title, content }),
             signal
         }),
+
+    deleteMail: (targetId: string, mailId: string, signal?: AbortSignal) =>
+        fetchWithTimeout(`${API_BASE}/admin/mail/${targetId}/${mailId}`, {
+            method: 'DELETE',
+            signal
+        }),
 };

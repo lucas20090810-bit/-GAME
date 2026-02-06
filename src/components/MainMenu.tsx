@@ -112,7 +112,9 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
                     <div className="flex items-center gap-10 animate-[ticker_25s_linear_infinite] whitespace-nowrap">
                         {[...news, ...news].map((n: any, i: number) => (
                             <div key={i} className="flex items-center gap-3">
-                                <span className="px-2.5 py-1 bg-sky-600/20 text-sky-400 border border-sky-400/30 text-[10px] font-black rounded italic uppercase tracking-widest">Broadcast</span>
+                                <span className={`px-2.5 py-1 bg-${n.color || 'sky'}-600/20 text-${n.color || 'sky'}-400 border border-${n.color || 'sky'}-400/30 text-[10px] font-black rounded italic uppercase tracking-widest`}>
+                                    {n.title}
+                                </span>
                                 <span className="text-xs font-black text-white/70 italic tracking-wide">{n.title}: {n.content}</span>
                                 <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
                             </div>
@@ -127,61 +129,69 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
                 </div>
             </header>
 
-            {/* Game Tiles Vertical Stack */}
-            <section className="relative z-10 flex-1 px-5 py-2 flex flex-col gap-5 overflow-y-auto mt-2 custom-scrollbar">
-                {games.map((game, index) => (
+            {/* Main Content Area */}
+            <section className="relative z-10 flex-1 px-5 pt-2 flex flex-col gap-4 overflow-y-auto noscrollbar">
+
+                {/* Row 1: Small Buttons (Shop & Mail) */}
+                <div className="grid grid-cols-2 gap-3 min-h-[90px]">
                     <motion.button
-                        key={game.id}
-                        initial={{ x: -100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.2 + index * 0.1, type: 'spring', damping: 20 }}
-                        whileTap={{ scale: 0.96, y: 4 }}
-                        onClick={() => handleAction(game.id)}
-                        className={`relative w-full p-8 h-36 rounded-[2.5rem] overflow-hidden group shadow-[0_20px_40px_rgba(0,0,0,0.6)] border-t-2 border-white/15`}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleAction('shop')}
+                        className="relative h-24 rounded-[1.5rem] overflow-hidden group border border-white/10 shadow-lg"
                     >
-                        {/* Background Color/Gradient with Texture */}
-                        <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-95 transition-all group-active:brightness-110`} />
-                        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
-
-                        {/* Shimmer Effect */}
-                        <div className="absolute inset-0 shimmer-bg opacity-30" />
-
-                        {/* Content */}
-                        <div className="relative h-full flex items-center justify-between">
-                            <div className="text-left">
-                                <h3 className="text-4xl font-black italic tracking-tighter text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] scale-y-110 scale-x-105 mb-2 leading-none uppercase">{game.title}</h3>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-4 bg-white/40 rounded-full" />
-                                    <p className="text-[11px] font-black text-white/70 uppercase tracking-[0.3em] italic">{game.subtitle}</p>
-                                </div>
-                            </div>
-
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                className="p-5 bg-black/20 rounded-3xl border-2 border-white/20 backdrop-blur-md rotate-[-8deg] group-hover:rotate-0 transition-all duration-500 shadow-xl"
-                            >
-                                <div className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
-                                    {game.icon}
-                                </div>
-                            </motion.div>
-                        </div>
-
-                        {/* Decoration Icon */}
-                        <div className="absolute bottom-3 right-6 flex items-center gap-2 opacity-30">
-                            <div className="w-10 h-[2px] bg-white/40 rounded-full" />
-                            <span className="text-[10px] font-black italic tracking-widest uppercase text-white">Engage</span>
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-700 opacity-90" />
+                        <div className="relative h-full flex flex-col items-center justify-center gap-1">
+                            <ShoppingCart size={24} className="text-white drop-shadow-md" />
+                            <span className="text-sm font-black text-white uppercase tracking-wider">補給商店</span>
                         </div>
                     </motion.button>
-                ))}
+
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleAction('mail')}
+                        className="relative h-24 rounded-[1.5rem] overflow-hidden group border border-white/10 shadow-lg"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-700 opacity-90" />
+                        <div className="relative h-full flex flex-col items-center justify-center gap-1">
+                            <Mail size={24} className="text-white drop-shadow-md" />
+                            <span className="text-sm font-black text-white uppercase tracking-wider">情報中心</span>
+                        </div>
+                    </motion.button>
+                </div>
+
+                {/* Row 2+: Large Game Mode Buttons */}
+                <div className="flex flex-col gap-4 items-center w-full">
+                    {games.filter(g => g.id === '2048' || g.id === 'pingpong').map((game, index) => (
+                        <motion.button
+                            key={game.id}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3 + index * 0.1 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => handleAction(game.id)}
+                            className={`relative w-full max-w-sm p-6 h-32 rounded-[2rem] overflow-hidden group shadow-2xl border border-white/10 flex items-center justify-between`}
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-95`} />
+                            <div className="relative z-10 text-left">
+                                <h3 className="text-3xl font-black italic text-white leading-none uppercase tracking-tighter">{game.title}</h3>
+                                <p className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] mt-1">{game.subtitle}</p>
+                            </div>
+                            <div className="relative z-10 p-3 bg-black/20 rounded-2xl border border-white/20 rotate-[-5deg]">
+                                {game.icon}
+                            </div>
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Extra spacing to prevent bottom clipping */}
+                <div className="h-6" />
             </section>
 
             {/* Version Numbers in Corners */}
-            <div className="relative z-10 px-8 py-2 flex justify-between items-center opacity-30 pointer-events-none">
-                <p className="text-[10px] font-black italic tracking-tighter uppercase whitespace-nowrap">App: {CONFIG.APP_VERSION}</p>
-                <div className="flex items-center gap-4">
-                    <p className="text-[10px] font-black italic tracking-tighter uppercase whitespace-nowrap text-amber-500">Secure Line</p>
-                    <p className="text-[10px] font-black italic tracking-tighter uppercase whitespace-nowrap">Res: {CONFIG.RESOURCE_VERSION}</p>
-                </div>
+            <div className="relative z-10 px-8 py-2 flex justify-between items-center opacity-40 pointer-events-none">
+                <p className="text-[9px] font-black italic tracking-tighter uppercase">Client: {CONFIG.APP_VERSION}</p>
+                <p className="text-[9px] font-black italic tracking-tighter uppercase text-primary">System Online</p>
+                <p className="text-[9px] font-black italic tracking-tighter uppercase">OTA: {CONFIG.RESOURCE_VERSION}</p>
             </div>
 
             {/* Bottom Tab Bar (Custom High-End Mobile Menu) */}
