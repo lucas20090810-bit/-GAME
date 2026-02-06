@@ -25,8 +25,8 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
         paddleX: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
         ballX: CANVAS_WIDTH / 2,
         ballY: CANVAS_HEIGHT / 2,
-        ballSpeedX: 3,
-        ballSpeedY: -4,
+        ballSpeedX: 2,
+        ballSpeedY: -2.5,
         animationId: 0,
     });
 
@@ -34,8 +34,8 @@ const PingPong: React.FC<PingPongProps> = ({ onBack }) => {
         const state = gameStateRef.current;
         state.ballX = CANVAS_WIDTH / 2;
         state.ballY = CANVAS_HEIGHT / 2;
-        state.ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * (2 + Math.random() * 2);
-        state.ballSpeedY = -4;
+        state.ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random() * 1.5);
+        state.ballSpeedY = -2.5;
     };
 
     const resetGame = () => {

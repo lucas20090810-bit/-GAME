@@ -67,8 +67,10 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
                         <Coins size={14} className="text-amber-400" />
                         <span className="text-xs font-bold text-amber-400">{userData.coins || 0}</span>
                     </div>
-                    <button onClick={() => handleAction('admin')} className="p-1.5 rounded-lg bg-black/40 border border-white/10 hover:bg-white/10">
+                    {/* User Settings Button (Replaced Admin) */}
+                    <button onClick={() => handleAction('profile')} className="p-1.5 rounded-lg bg-black/40 border border-white/10 hover:bg-white/10">
                         <Settings size={16} className="text-white/70" />
+                        {/* Admin is now inside the Profile Settings page or hidden */}
                     </button>
                 </div>
             </header>

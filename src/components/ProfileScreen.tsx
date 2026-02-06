@@ -22,9 +22,17 @@ const ProfileScreen: React.FC<{ userData: any; onUpdate: (data: any) => void; on
     return (
         <div className="fixed inset-0 flex bg-slate-900 overflow-hidden">
             {/* Left: Back Button */}
-            <div className="flex items-center px-4">
+            <div className="flex flex-col justify-between py-4 px-4 h-full">
                 <button onClick={onBack} className="p-3 glass-card hover:bg-white/10 transition-colors rounded-xl">
                     <ChevronLeft size={24} />
+                </button>
+
+                {/* Hidden Admin Entry */}
+                <button
+                    onClick={() => onUpdate({ ...userData, openAdmin: true })}
+                    className="p-2 opacity-30 hover:opacity-100 transition-opacity"
+                >
+                    <span className="text-[10px] uppercase text-slate-500">v1.2.9</span>
                 </button>
             </div>
 
@@ -35,7 +43,7 @@ const ProfileScreen: React.FC<{ userData: any; onUpdate: (data: any) => void; on
                     animate={{ opacity: 1, y: 0 }}
                     className="glass-card p-6 rounded-2xl max-w-md w-full mx-4 flex flex-col gap-4"
                 >
-                    <h2 className="text-xl font-bold text-center">個人檔案</h2>
+                    <h2 className="text-xl font-bold text-center">遊戲設定</h2>
 
                     {/* Avatar Row */}
                     <div className="flex items-center gap-4">

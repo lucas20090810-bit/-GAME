@@ -12,6 +12,7 @@ import { api } from './api';
 import { checkAndUpdate, type VersionInfo } from './utils/updateManager';
 import { CONFIG } from './config';
 import { Capacitor } from '@capacitor/core';
+import { NavigationBar } from '@capgo/capacitor-navigation-bar';
 
 // OTA Live Update (only works on native platforms)
 let LiveUpdate: any = null;
@@ -23,9 +24,20 @@ const initLiveUpdate = async () => {
     const module = await import('@capawesome/capacitor-live-update');
     LiveUpdate = module.LiveUpdate;
     console.log('[OTA] LiveUpdate plugin loaded');
-
-    // CRITICAL: Call ready() immediately after plugin loads to prevent rollback
     const result = await LiveUpdate.ready();
+
+    // Hide Navigation Bar (Immersive Mode)
+    // @ts-ignore
+    if (typeof NavigationBar.setAutoHide === 'function') {
+      // @ts-ignore
+      await NavigationBar.setAutoHide({ autoHide: true });
+    }
+    // @ts-ignore
+    if (typeof NavigationBar.hide === 'function') {
+      // @ts-ignore
+      await NavigationBar.hide();
+    }
+
     console.log('[OTA] ready() called successfully:', result);
   } catch (e) {
     console.error('[OTA] LiveUpdate init failed:', e);
