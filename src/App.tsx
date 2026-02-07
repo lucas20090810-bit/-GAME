@@ -123,8 +123,8 @@ const App: React.FC = () => {
             const { setAppliedOtaVersion } = await import('./utils/updateManager');
             setAppliedOtaVersion(updateInfo.ota_version);
 
-            // Prompt to restart manually - Capgo requires full app restart
-            alert('更新已下載！請完全關閉APP後重新啟動以套用更新。');
+            // Prompt to restart manually - Capgo applies bundle on NEXT startup
+            alert('✅ 更新已下載並設定！\n\n請完全關閉APP，然後「再次重啟」即可看到新內容。');
           } catch (syncErr: any) {
             console.error('[OTA] Failed:', syncErr);
             alert(`更新失敗: ${syncErr?.message || '請檢查網路'}`);

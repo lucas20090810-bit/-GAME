@@ -38,7 +38,7 @@ const JumpJump: React.FC<JumpJumpProps> = ({ onBack }) => {
     const animationFrameRef = useRef<number>();
 
     // Initialize platforms
-    const initPlatforms = () => {
+    const initPlatforms = (): Platform[] => {
         const initialPlatforms: Platform[] = [];
         let lastX = 100;
         let lastY = 400;
