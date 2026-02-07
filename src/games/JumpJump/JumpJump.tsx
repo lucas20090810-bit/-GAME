@@ -35,7 +35,7 @@ const JumpJump: React.FC<JumpJumpProps> = ({ onBack }) => {
     const [platforms, setPlatforms] = useState<Platform[]>([]);
     const [currentPlatform, setCurrentPlatform] = useState(0);
     const gameAreaRef = useRef<HTMLDivElement>(null);
-    const animationFrameRef = useRef<number>();
+    const animationFrameRef = useRef<number | undefined>(undefined);
 
     // Initialize platforms
     const initPlatforms = () => {
