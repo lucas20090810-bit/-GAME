@@ -42,13 +42,13 @@ const getManifest = () => {
         }
     } catch (e) { }
     return {
-        version: "1.2.0",
-        ota_version: "1.2.0",
+        version: "1.0.0",
+        ota_version: "1.0.0",
         url: "https://game-xhnj.onrender.com/updates/latest.zip",
         downloadUrl: "https://game-xhnj.onrender.com/updates/latest.zip",
-        message: "修正 UI 與 2048 遊戲邏輯",
+        message: "初始版本",
         critical: true,
-        changelog: ["修正右上角 + 號位置", "糾正 2048 滑動方向"]
+        changelog: ["首次發布"]
     };
 };
 

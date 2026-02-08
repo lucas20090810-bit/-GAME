@@ -86,7 +86,7 @@ const JumpJump: React.FC<JumpJumpProps> = ({ onBack }) => {
 
     // Game loop
     useEffect(() => {
-        if (gameState !== 'playing') return;
+        if (gameState !== 'playing' || platforms.length === 0) return;
 
         const gameLoop = () => {
             setPlayer(prev => {
@@ -165,7 +165,7 @@ const JumpJump: React.FC<JumpJumpProps> = ({ onBack }) => {
                 cancelAnimationFrame(animationFrameRef.current);
             }
         };
-    }, [gameState, platforms, currentPlatform, score, bestScore]);
+    }, [gameState, currentPlatform, score, bestScore]);
 
     // Camera offset to follow player
     const cameraOffset = Math.max(0, player.x - 200);

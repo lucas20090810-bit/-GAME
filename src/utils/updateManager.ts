@@ -24,13 +24,14 @@ export const checkAndUpdate = async (): Promise<VersionInfo | null> => {
         const manifest = await getVersion() as VersionInfo;
         const appliedVersion = getAppliedOtaVersion();
 
-        // Check if server has a newer OTA version than what we've applied
+        // Auto-update: Check if server OTA version is different (no manual trigger needed)
+        // This makes updates fully automatic based on Render deployments
         if (manifest.ota_version && manifest.ota_version !== appliedVersion) {
-            console.log(`[OTA] New version found: ${manifest.ota_version} (Applied: ${appliedVersion})`);
+            console.log(`[OTA] Auto-update detected: ${manifest.ota_version} (Current: ${appliedVersion})`);
             return manifest;
         }
 
-        console.log(`[OTA] Up to date. Server: ${manifest.ota_version}, Applied: ${appliedVersion}`);
+        console.log(`[OTA] Up to date. Version: ${manifest.ota_version}`);
         return null;
     } catch (e) {
         console.error("Update check failed", e);

@@ -36,10 +36,10 @@ function packageUpdate(customVersion) {
                 version = packageJson.version;
             }
 
-            // Create manifest
+            // Create manifest with semantic versioning
             const manifest = {
                 version: version,
-                ota_version: Date.now().toString(),
+                ota_version: version, // Use same version for OTA tracking - semantic & readable
                 url: 'https://game-xhnj.onrender.com/updates/latest.zip',
                 downloadUrl: 'https://game-xhnj.onrender.com/updates/latest.zip',
                 checksum: hash,
