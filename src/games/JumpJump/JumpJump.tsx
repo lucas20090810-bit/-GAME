@@ -67,7 +67,12 @@ const JumpJump: React.FC<JumpJumpProps> = ({ onBack }) => {
     const startGame = () => {
         const newPlatforms = initPlatforms();
         setPlatforms(newPlatforms);
-        setPlayer({ x: 100, y: newPlatforms[0].y - PLAYER_SIZE - PLATFORM_HEIGHT, velocityY: 0, isJumping: false });
+        setPlayer({
+            x: newPlatforms[0].x + (newPlatforms[0].width - PLAYER_SIZE) / 2,
+            y: newPlatforms[0].y - PLAYER_SIZE,
+            velocityY: 0,
+            isJumping: false
+        });
         setCurrentPlatform(0);
         setScore(0);
         setGameState('playing');

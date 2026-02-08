@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Gamepad2, User, Trophy, Target, Layers, ShoppingCart, Mail, Settings, Coins } from 'lucide-react';
+import { Gamepad2, Trophy, Target, Layers, ShoppingCart, Mail, User, Settings, Coins } from 'lucide-react';
 import { playSound } from '../utils/sound';
 
 interface GameCard {
@@ -8,14 +8,17 @@ interface GameCard {
     title: string;
     icon: React.ReactNode;
     color: string;
+    type: 'game' | 'system';
 }
 
-const games: GameCard[] = [
-    { id: '2048', title: '2048', icon: <Gamepad2 className="w-8 h-8" />, color: 'from-sky-500 to-blue-700' },
-    { id: 'pingpong', title: '桌球', icon: <Trophy className="w-8 h-8" />, color: 'from-emerald-500 to-green-700' },
-    { id: 'pingpong3d', title: '1v1 桌球', icon: <Trophy className="w-8 h-8" />, color: 'from-purple-500 to-violet-700' },
-    { id: 'reaction', title: '反應力測試', icon: <Target className="w-8 h-8" />, color: 'from-pink-500 to-purple-700' },
-    { id: 'jumpjump', title: '跳一跳', icon: <Layers className="w-8 h-8" />, color: 'from-cyan-500 to-teal-700' },
+const allItems: GameCard[] = [
+    { id: 'shop', title: '商店', icon: <ShoppingCart className="w-12 h-12" />, color: 'from-amber-500 to-orange-700', type: 'system' },
+    { id: 'mail', title: '情報', icon: <Mail className="w-12 h-12" />, color: 'from-indigo-500 to-purple-700', type: 'system' },
+    { id: '2048', title: '2048', icon: <Gamepad2 className="w-16 h-16" />, color: 'from-sky-500 to-blue-700', type: 'game' },
+    { id: 'jumpjump', title: '跳一跳', icon: <Layers className="w-16 h-16" />, color: 'from-cyan-500 to-teal-700', type: 'game' },
+    { id: 'reaction', title: '反應測試', icon: <Target className="w-16 h-16" />, color: 'from-pink-500 to-rose-700', type: 'game' },
+    { id: 'pingpong', title: '桌球', icon: <Trophy className="w-16 h-16" />, color: 'from-emerald-500 to-green-700', type: 'game' },
+    { id: 'pingpong3d', title: '1v1 桌球', icon: <Trophy className="w-16 h-16" />, color: 'from-purple-500 to-violet-700', type: 'game' },
 ];
 
 const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string) => void }> = ({ userData, news, onSelectGame }) => {
@@ -33,111 +36,110 @@ const MainMenu: React.FC<{ userData: any; news: any[]; onSelectGame: (id: string
             <div className="absolute inset-0 z-0">
                 <img
                     src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1920&q=80"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover opacity-40"
                     alt="bg"
-                    style={{ filter: 'brightness(0.4) saturate(1.2)' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent" />
             </div>
 
-            {/* Top Bar */}
-            <header className="relative z-10 px-4 py-2 flex items-center justify-between">
-                {/* Left: Avatar */}
-                <button onClick={() => handleAction('profile')} className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 p-[2px] shadow-lg">
-                        <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center overflow-hidden">
+            {/* Header */}
+            <header className="relative z-10 px-6 py-4 flex items-center justify-between">
+                <button onClick={() => handleAction('profile')} className="flex items-center gap-3 group">
+                    <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-br from-amber-400 to-orange-600 shadow-lg group-active:scale-95 transition-transform">
+                        <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
                             {hasAvatar ? (
                                 <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
-                                <User size={18} className="text-amber-400 opacity-60" />
+                                <User className="text-white/50" />
                             )}
                         </div>
                     </div>
-                    <div className="text-left">
-                        <h2 className="text-sm font-bold text-white">{userData.name}</h2>
-                        <p className="text-[8px] text-green-400 uppercase">● 在線</p>
+                    <div>
+                        <div className="text-white font-bold text-lg leading-tight">{userData.name}</div>
+                        <div className="text-green-400 text-xs font-bold uppercase tracking-wider">● Online</div>
                     </div>
                 </button>
 
-                {/* Center: Title - Removed for hot update test */}
-
-                {/* Right: Coins + Settings */}
-                <div className="flex items-center gap-2">
-                    <div className="bg-black/40 px-2 py-1 rounded-lg flex items-center gap-1 border border-amber-500/30">
-                        <Coins size={14} className="text-amber-400" />
-                        <span className="text-xs font-bold text-amber-400">{userData.coins || 0}</span>
+                <div className="flex items-center gap-3">
+                    <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-amber-500/30 flex items-center gap-2">
+                        <Coins size={16} className="text-amber-400" />
+                        <span className="text-amber-400 font-bold">{userData.coins || 0}</span>
                     </div>
-                    {/* User Settings Button (Replaced Admin) */}
-                    <button onClick={() => handleAction('profile')} className="p-1.5 rounded-lg bg-black/40 border border-white/10 hover:bg-white/10">
-                        <Settings size={16} className="text-white/70" />
-                        {/* Admin is now inside the Profile Settings page or hidden */}
+                    <button onClick={() => handleAction('profile')} className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center active:scale-95 transition-transform">
+                        <Settings size={20} className="text-white/80" />
                     </button>
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="relative z-10 flex-1 flex items-center px-4 py-2 gap-3">
-                {/* Left: Shop & Mail */}
-                <div className="flex flex-col gap-2 w-24 shrink-0">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleAction('shop')}
-                        className="flex-1 rounded-xl overflow-hidden border border-amber-500/30 shadow-lg relative min-h-[60px]"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-700" />
-                        <div className="relative h-full flex flex-col items-center justify-center gap-1">
-                            <ShoppingCart size={22} className="text-white" />
-                            <span className="text-xs font-bold text-white">商店</span>
-                        </div>
-                    </motion.button>
-
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleAction('mail')}
-                        className="flex-1 rounded-xl overflow-hidden border border-purple-500/30 shadow-lg relative min-h-[60px]"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-700" />
-                        <div className="relative h-full flex flex-col items-center justify-center gap-1">
-                            <Mail size={22} className="text-white" />
-                            <span className="text-xs font-bold text-white">情報</span>
-                        </div>
-                    </motion.button>
-                </div>
-
-                {/* Center: Game Buttons */}
-                <div className="flex-1 flex items-center justify-center gap-4">
-                    {games.map((game, index) => (
+            {/* Main Content - Horizontal Scroll */}
+            <main className="relative z-10 flex-1 flex flex-col justify-center">
+                <div className="w-full overflow-x-auto snap-x snap-mandatory flex items-center gap-6 px-8 py-8 no-scrollbar scroll-smooth">
+                    {allItems.map((item, index) => (
                         <motion.button
-                            key={game.id}
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
+                            key={item.id}
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
                             transition={{ delay: index * 0.1 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => handleAction(game.id)}
-                            className="relative w-36 h-28 rounded-xl overflow-hidden shadow-2xl border border-white/20"
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleAction(item.id)}
+                            className={`
+                                relative shrink-0 snap-center rounded-3xl overflow-hidden shadow-2xl
+                                ${item.type === 'system' ? 'w-64 h-80' : 'w-72 h-[420px]'}
+                                group
+                            `}
                         >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${game.color}`} />
-                            <div className="relative z-10 h-full flex flex-col items-center justify-center gap-2">
-                                <div className="p-2 bg-black/20 rounded-lg border border-white/20">
-                                    {game.icon}
-                                </div>
-                                <h3 className="text-lg font-black text-white uppercase">{game.title}</h3>
+                            {/* Card Background */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${item.color}`} />
+                            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+
+                            {/* Card Content */}
+                            <div className="relative z-10 h-full flex flex-col items-center justify-center p-6 text-center">
+                                <motion.div
+                                    whileHover={{ rotate: [0, -10, 10, 0] }}
+                                    transition={{ duration: 0.5 }}
+                                    className="mb-6 p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20 shadow-lg"
+                                >
+                                    {item.icon}
+                                </motion.div>
+                                <h3 className="text-2xl font-black text-white uppercase tracking-wider drop-shadow-md">
+                                    {item.title}
+                                </h3>
+                                {item.type === 'game' && (
+                                    <span className="mt-2 text-xs font-bold text-white/60 bg-black/20 px-3 py-1 rounded-full border border-white/10">
+                                        GAME MODE
+                                    </span>
+                                )}
                             </div>
                         </motion.button>
                     ))}
+
+                    {/* Padding for end of scroll */}
+                    <div className="w-2 shrink-0" />
+                </div>
+
+                {/* Scroll Hint */}
+                <div className="text-center text-white/30 text-xs font-bold uppercase tracking-[0.2em] animate-pulse pointer-events-none">
+                    ← Slide to Select →
                 </div>
             </main>
 
-            {/* Bottom: News */}
-            <footer className="relative z-10 px-4 py-1.5">
-                <div className="bg-black/40 h-6 rounded-lg flex items-center px-3 overflow-hidden border border-white/10">
-                    <div className="flex items-center gap-6 animate-[ticker_20s_linear_infinite] whitespace-nowrap">
+            {/* Footer News */}
+            <footer className="relative z-10 px-4 py-4">
+                <div className="bg-black/40 backdrop-blur-md rounded-xl border border-white/5 p-2 overflow-hidden">
+                    <div className="flex items-center gap-8 animate-[ticker_20s_linear_infinite] whitespace-nowrap">
                         {[...news, ...news].map((n: any, i: number) => (
-                            <span key={i} className="text-[10px] font-bold text-white/70">📰 {n.title}: {n.content}</span>
+                            <span key={i} className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                                <span className="text-amber-400">NEWS</span>
+                                {n.title}: {n.content}
+                            </span>
                         ))}
                     </div>
-                    <style>{`@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`}</style>
                 </div>
+                <style>{`
+                    .no-scrollbar::-webkit-scrollbar { display: none; }
+                    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+                `}</style>
             </footer>
         </div>
     );
